@@ -3,7 +3,6 @@ package org.example.aideepseek.deepseek.controller;
 import org.example.aideepseek.deepseek.service.DeepSeekService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/chat/v1")
@@ -16,10 +15,12 @@ public class ChatController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<String>> chat(@RequestBody String userMessage) {
-        return deepSeekService.getChatCompletion(userMessage)
-                .map(content -> ResponseEntity.ok().body(content))
-                .onErrorResume(ex -> Mono.just(ResponseEntity.status(500).body("Ошибка: " + ex.getMessage())));
+    public ResponseEntity<String> chat(@RequestBody String userMessage) {
+        try {
+            String response = deepSeekService.getChatCompletion(userMessage);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 }
-

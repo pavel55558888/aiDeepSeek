@@ -6,103 +6,101 @@ import org.example.aideepseek.deepseek.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
 import java.util.List;
 
 @Service
 public class DeepSeekService {
-    private final Logger log;
-    private final WebClient webClient;
+
+    private final Logger log = LoggerFactory.getLogger(DeepSeekService.class);
+    private final RestTemplate restTemplate;
+    private final String deepseekApiUrl;
+    private final String apiKey;
 
     public DeepSeekService(
-            WebClient.Builder webClientBuilder,
             @Value("${deepseek.api.url}") String deepseekApiUrl,
             @Value("${deepseek.api.key}") String apiKey
     ) {
-        this.log = LoggerFactory.getLogger(DeepSeekService.class);
-        this.webClient = webClientBuilder
-                .baseUrl(deepseekApiUrl)
-                .defaultHeader("Authorization", "Bearer " + apiKey)
-                .build();
-        log.info("DeepSeek API URL: " + deepseekApiUrl);
+        this.deepseekApiUrl = deepseekApiUrl;
+        this.restTemplate = new RestTemplate();
+        this.apiKey = apiKey;
+
+        log.debug("DeepSeek API URL: {}", deepseekApiUrl);
     }
 
-    public Mono<String> getChatCompletion(String userMessage) {
-
-        log.debug(userMessage);
+    public String getChatCompletion(String userMessage) {
+        log.debug("Получено сообщение от пользователя: {}", userMessage);
 
         DeepSeekRequest request = new DeepSeekRequest(
                 "deepseek-chat",
-                List.of(new Message("user", userMessage)), // История сообщений
-                0.7, // "Творчество" модели
-                1000 // Макс. количество токенов в ответе
+                List.of(new Message("user", userMessage)),
+                0.7,
+                1000
         );
 
-        return webClient.post()
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(DeepSeekResponse.class)
-                .map(response -> {
-                    if (response != null &&
-                            response.getChoices() != null &&
-                            !response.getChoices().isEmpty() &&
-                            response.getChoices().get(0).getMessage() != null) {
+        try {
+            // Создаём HTTP-заголовки
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Bearer " + apiKey);
 
-                        String content = response.getChoices().get(0).getMessage().getContent();
-                        log.debug("Успешный ответ от DeepSeek: {}", content);
-                        return content;
-                    }
-                    log.warn("Получен некорректный ответ от DeepSeek: {}", response);
-                    return "Не удалось получить ответ от DeepSeek. Некорректный формат ответа.";
-                })
-                .onErrorResume(WebClientResponseException.class, ex -> {
-                    // Обработка HTTP ошибок (4xx, 5xx)
-                    log.error("Ошибка API DeepSeek. Status: {}, Body: {}",
-                            ex.getStatusCode(), ex.getResponseBodyAsString());
+            HttpEntity<DeepSeekRequest> entity = new HttpEntity<>(request, headers);
 
-                    String errorMessage;
-                    if (ex.getStatusCode() == HttpStatus.PAYMENT_REQUIRED) {
-                        errorMessage = "Лимит запросов исчерпан. Необходима оплата.";
-                    } else if (ex.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
-                        errorMessage = "Слишком много запросов. Попробуйте позже.";
-                    } else if (ex.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                        errorMessage = "Неверный API-ключ.";
-                    } else if (ex.getStatusCode().is4xxClientError()) {
-                        errorMessage = "Ошибка в запросе к сервису.";
-                    } else if (ex.getStatusCode().is5xxServerError()) {
-                        errorMessage = "Сервис временно недоступен.";
-                    } else {
-                        errorMessage = "Ошибка при обращении к сервису.";
-                    }
+            ResponseEntity<DeepSeekResponse> response = restTemplate.exchange(
+                    deepseekApiUrl,
+                    HttpMethod.POST,
+                    entity,
+                    DeepSeekResponse.class
+            );
 
-                    return Mono.just("Ошибка: " + errorMessage);
-                })
-                .onErrorResume(WebClientRequestException.class, ex -> {
-                    // Обработка сетевых ошибок (таймауты, проблемы с соединением)
-                    log.error("Сетевая ошибка при обращении к DeepSeek: {}", ex.getMessage());
-                    return Mono.just("Ошибка: Сервис временно недоступен. Проверьте соединение.");
-                })
-                .onErrorResume(Exception.class, ex -> {
-                    // Общая обработка всех остальных исключений
-                    log.error("Неожиданная ошибка при работе с DeepSeek: {}", ex.getMessage());
-                    return Mono.just("Ошибка: Внутренняя ошибка сервиса.");
-                })
-                .timeout(Duration.ofSeconds(30)) // Таймаут 30 секунд
-                .doOnSubscribe(subscription ->
-                        log.debug("Отправка запроса к DeepSeek: {}", userMessage))
-                .doOnSuccess(response ->
-                        log.debug("Запрос к DeepSeek выполнен успешно"))
-                .doOnError(error ->
-                        log.error("Запрос к DeepSeek завершился ошибкой", error));
+            DeepSeekResponse responseBody = response.getBody();
+            if (responseBody != null &&
+                    responseBody.getChoices() != null &&
+                    !responseBody.getChoices().isEmpty() &&
+                    responseBody.getChoices().get(0).getMessage() != null) {
+
+                String content = responseBody.getChoices().get(0).getMessage().getContent();
+                log.debug("Успешный ответ от DeepSeek: {}", content);
+                return content;
+            }
+
+            log.warn("Получен некорректный ответ от DeepSeek: {}", responseBody);
+            return "Не удалось получить ответ от DeepSeek. Некорректный формат ответа.";
+
+        } catch (org.springframework.web.client.HttpClientErrorException ex) {
+            log.error("Ошибка API DeepSeek (HTTP {}): {}", ex.getStatusCode(), ex.getResponseBodyAsString());
+
+            String errorMessage;
+            if (ex.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                errorMessage = ex.getStatusCode() + " Неверный API-ключ. \n"
+                        + "Ошибка: API DeepSeek HTTP " + ex.getStatusCode() + "   " + ex.getResponseBodyAsString();
+            } else if (ex.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
+                errorMessage = ex.getStatusCode() + " Слишком много запросов. Попробуйте позже.\n"
+                        + "Ошибка: API DeepSeek HTTP " + ex.getStatusCode() + "   " + ex.getResponseBodyAsString();
+            } else if (ex.getStatusCode() == HttpStatus.PAYMENT_REQUIRED) {
+                errorMessage = ex.getStatusCode() + " Лимит запросов исчерпан. Необходима оплата.\n"
+                        + "Ошибка: API DeepSeek HTTP " + ex.getStatusCode() + "   " + ex.getResponseBodyAsString();
+            } else {
+                errorMessage = ex.getStatusCode() + " Ошибка в запросе к сервису.\n"
+                        + "Ошибка: API DeepSeek HTTP " + ex.getStatusCode() + "   " + ex.getResponseBodyAsString();
+            }
+            throw new RuntimeException("Ошибка: " + errorMessage);
+
+        } catch (org.springframework.web.client.HttpServerErrorException ex) {
+            log.error("Ошибка сервера DeepSeek (HTTP {}): {}", ex.getStatusCode(), ex.getResponseBodyAsString());
+            throw new RuntimeException("Ошибка: Сервис временно недоступен.");
+
+        } catch (org.springframework.web.client.ResourceAccessException ex) {
+            log.error("Сетевая ошибка при обращении к DeepSeek: {}", ex.getMessage());
+            throw new RuntimeException("Ошибка: Сервис временно недоступен. Проверьте соединение.");
+
+        } catch (Exception ex) {
+            log.error("Неожиданная ошибка при работе с DeepSeek: {}", ex.getMessage());
+            throw new RuntimeException("Ошибка: Внутренняя ошибка сервиса.");
+        }
     }
 }
-
