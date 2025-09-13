@@ -1,4 +1,4 @@
-package org.example.aideepseek.security.controllers;
+package org.example.aideepseek.controller;
 
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,8 +34,8 @@ public class AuthenticationController {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
-    @Autowired
-    DtoError dtoError;
+
+    private DtoError dtoError = new DtoError();
     @PostMapping("/authenticate")
     public <T> T createAuthenticationToken(@Valid @RequestBody AuthenticationDTO authenticationDTO, BindingResult bindingResult, HttpServletResponse response) throws BadCredentialsException, DisabledException, UsernameNotFoundException, IOException {
         if (bindingResult.hasErrors()){

@@ -20,7 +20,7 @@ public class JwtUtil {
 
     @Value("${jwt.secert}")
     private String SECRET;
-    @Value("${jwt.time.min}")
+    @Value("${jwt.time.h}")
     private int TIME;
 
     public String extractUsername(String token) {
@@ -64,7 +64,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(userName)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*TIME))
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*TIME))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 

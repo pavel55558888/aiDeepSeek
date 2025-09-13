@@ -1,4 +1,4 @@
-package org.example.aideepseek.security.controllers;
+package org.example.aideepseek.controller;
 
 import jakarta.validation.Valid;
 import org.example.aideepseek.security.dto.DtoError;
@@ -20,8 +20,8 @@ public class SignupController {
 
     @Autowired
     private AuthService authService;
-    @Autowired
-    private DtoError dtoError;
+
+    private DtoError dtoError = new DtoError();
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signupUser(@Valid @RequestBody SignupDTO signupDTO, BindingResult bindingResult) {

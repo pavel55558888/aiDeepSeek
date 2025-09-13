@@ -1,11 +1,9 @@
 package org.example.aideepseek.security.dto;
 
-import org.springframework.stereotype.Component;
 import org.springframework.validation.ObjectError;
 
 import java.util.List;
 
-@Component
 public class DtoError {
     private String error;
     private List<ObjectError> listError;
