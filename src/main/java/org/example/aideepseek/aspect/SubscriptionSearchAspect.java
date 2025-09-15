@@ -8,6 +8,7 @@ import org.example.aideepseek.database.model.SubscriptionModel;
 import org.example.aideepseek.database.model.enums.Status;
 import org.example.aideepseek.database.service.GetSubscriptionByEmail;
 import org.example.aideepseek.database.service.UpdateSubscription;
+import org.example.aideepseek.security.dto.DtoError;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +49,12 @@ public class SubscriptionSearchAspect {
         SubscriptionModel subscriptionModel = getSubscriptionByEmail.getSubscriptionByEmail(username);
         if (subscriptionModel == null) {
             log.error("Account " + username + " notfound");
-            return ResponseEntity.status(500).body("Ошибка: аккакунт не найден");
+            return ResponseEntity.status(500).body(new DtoError("Ошибка: аккакунт не найден"));
         }else if (subscriptionModel.getStatus() == Status.BLOCKED) {
             log.debug("Account " + username + " status " + Status.BLOCKED);
-            return ResponseEntity.ok().body("Ошибка: ваш аккакунт заблокирован. " +
+            return ResponseEntity.ok().body(new DtoError("Ошибка: ваш аккакунт заблокирован. " +
                     "Причина: многопользовательский аккаунт. " +
-                    "Последнее время данный аккаунт использовался с разных ip адресов");
+                    "Последнее время данный аккаунт использовался с разных ip адресов"));
         } else if (subscriptionModel.getStatus().equals(Status.INACTIVE)){
             log.debug("Account " + username + " status " + Status.INACTIVE);
             if (subscriptionModel.getFreeAttempt() > 0){
@@ -62,7 +63,7 @@ public class SubscriptionSearchAspect {
                 log.debug("Account " + username + " free attempt " + subscriptionModel.getFreeAttempt());
             }else {
                 log.debug("Account " + username + " free attempt equals 0 " + subscriptionModel.getFreeAttempt());
-                return ResponseEntity.ok().body("Ошибка: бесплатные попытки закончились. Оформите подписку");
+                return ResponseEntity.ok().body(new DtoError("Ошибка: бесплатные попытки закончились. Оформите подписку"));
             }
         }
 
