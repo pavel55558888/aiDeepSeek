@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -20,14 +19,23 @@ public class DeepSeekService {
     private final RestTemplate restTemplate;
     private final String deepseekApiUrl;
     private final String apiKey;
+    private final String model;
+    private final int maxTokens;
+    private final double temperature;
 
     public DeepSeekService(
             @Value("${deepseek.api.url}") String deepseekApiUrl,
-            @Value("${deepseek.api.key}") String apiKey
-    ) {
+            @Value("${deepseek.api.key}") String apiKey,
+            @Value("${deepseel.api.model}") String model,
+            @Value("${deepseek.api.max.tokens}") int maxTokens,
+            @Value("${deepseek.api.temperature}") double temperature
+     ) {
         this.deepseekApiUrl = deepseekApiUrl;
         this.restTemplate = new RestTemplate();
         this.apiKey = apiKey;
+        this.model = model;
+        this.maxTokens = maxTokens;
+        this.temperature = temperature;
 
         log.debug("DeepSeek API URL: {}", deepseekApiUrl);
     }
@@ -36,14 +44,13 @@ public class DeepSeekService {
         log.debug("Получено сообщение от пользователя: {}", userMessage);
 
         DeepSeekRequest request = new DeepSeekRequest(
-                "deepseek-chat",
+                model,
                 List.of(new Message("user", userMessage)),
-                0.7,
-                1000
+                temperature,
+                maxTokens
         );
 
         try {
-            // Создаём HTTP-заголовки
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + apiKey);

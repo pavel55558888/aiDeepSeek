@@ -1,29 +1,45 @@
 package org.example.aideepseek.ignite;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.eviction.lru.LruEvictionPolicy;
 import org.apache.ignite.configuration.*;
+import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 @Configuration
 public class IgniteConfig {
 
     private Logger log = LoggerFactory.getLogger(IgniteConfig.class);
 
-    @Value("${ignite.cache.name}")
-    private String cacheName;
+    @Value("${ignite.cache.name.task}")
+    private String cacheNameTask;
+    @Value("${ignite.cache.name.ip}")
+    private String cacheNameIp;
     @Value("${ignite.memory.request}")
     private long memoryRequest;
     @Value("${ignite.memory.limit}")
     private long memoryLimit;
     @Value("${ignite.max.count.task}")
     private int maxCountTask;
+    @Value("${ignite.max.count.ip}")
+    private int maxCountIp;
+    @Value("${ignite.max.hours.ip}")
+    private int maxHoursIp;
+    @Value("${ignite.message.queue.limit}")
+    private int messageQueueLimit;
 
     @Bean
     public Ignite igniteStart() {
@@ -34,8 +50,8 @@ public class IgniteConfig {
 
         DataRegionConfiguration regionCfg = new DataRegionConfiguration();
         regionCfg.setName("TaskCache_region");
-        regionCfg.setInitialSize(memoryLimit * 1024 * 1024);
-        regionCfg.setMaxSize(memoryRequest * 1024 * 1024);
+        regionCfg.setInitialSize(memoryRequest * 1024 * 1024);
+        regionCfg.setMaxSize(memoryLimit * 1024 * 1024);
         regionCfg.setPersistenceEnabled(false);
         regionCfg.setPageEvictionMode(DataPageEvictionMode.RANDOM_2_LRU);
 
@@ -50,15 +66,22 @@ public class IgniteConfig {
         cfg.setPublicThreadPoolSize(2);
         cfg.setManagementThreadPoolSize(1);
 
+        TcpCommunicationSpi commSpi = new TcpCommunicationSpi();
+        commSpi.setMessageQueueLimit(messageQueueLimit);
+        commSpi.setSlowClientQueueLimit(messageQueueLimit / 2);
+        cfg.setCommunicationSpi(commSpi);
+
         Ignite ignite = Ignition.start(cfg);
         log.info("Ignite started with 256MB memory limit and LRU eviction");
         log.info("Node ID: {}", ignite.cluster().localNode().id());
+        log.info("Memory limit: " + memoryLimit + ", Memory request: " + memoryRequest);
+        log.info("Message queue fast limit: " + messageQueueLimit + ", Message queue slow limit: " + messageQueueLimit/2);
         return ignite;
     }
 
-    @Bean
+    @Bean("TaskCache")
     public IgniteCache<String, String> igniteCacheTask(Ignite ignite) {
-        var cacheCfg = new CacheConfiguration<String, String>(cacheName);
+        var cacheCfg = new CacheConfiguration<String, String>(cacheNameTask);
         cacheCfg.setBackups(1);
         cacheCfg.setOnheapCacheEnabled(true);
 
@@ -66,7 +89,30 @@ public class IgniteConfig {
         cacheCfg.setNearConfiguration(null);
 
         IgniteCache<String, String> cache = ignite.getOrCreateCache(cacheCfg);
-        log.info("Cache " + cacheName + " ready with up to " + maxCountTask + " entries");
+        log.info("Cache " + cacheNameTask + " ready with up to " + maxCountTask + " entries");
+        return cache;
+    }
+
+    @Bean("IpCache")
+    public IgniteCache<String, List<String>> igniteCacheIp(Ignite ignite) {
+
+        var cacheCfg = new CacheConfiguration<String, List<String>>(cacheNameIp);
+        cacheCfg.setBackups(1);
+        cacheCfg.setOnheapCacheEnabled(true);
+
+        cacheCfg.setEvictionPolicy(new LruEvictionPolicy(maxCountIp));
+        cacheCfg.setNearConfiguration(null);
+
+        cacheCfg.setExpiryPolicyFactory(
+                FactoryBuilder.factoryOf(new CreatedExpiryPolicy(
+                        new Duration(TimeUnit.HOURS, maxHoursIp)
+                ))
+        );
+
+
+        IgniteCache<String, List<String>> cache = ignite.getOrCreateCache(cacheCfg);
+        log.info("Cache " + cacheNameIp + " ready with up to " + maxCountIp + " entries");
+        log.info("Max lifetime hours " + maxHoursIp);
         return cache;
     }
 

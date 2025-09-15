@@ -1,14 +1,21 @@
-package org.example.aideepseek.search_ip;
+package org.example.aideepseek.aspect;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.example.aideepseek.database.model.SubscriptionModel;
+import org.example.aideepseek.database.model.enums.Status;
+import org.example.aideepseek.database.service.GetSubscriptionByEmail;
+import org.example.aideepseek.database.service.UpdateSubscription;
+import org.example.aideepseek.ignite.IgniteService;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -18,37 +25,51 @@ import java.net.UnknownHostException;
 
 @Aspect
 @Component
+@Order(1)
 public class RequestIpAspect {
 
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private IgniteService igniteService;
+    @Autowired
+    private GetSubscriptionByEmail getSubscriptionByEmail;
+    @Autowired
+    private UpdateSubscription updateSubscription;
     private Logger log = LoggerFactory.getLogger(RequestIpAspect.class);
 
     @Value("${check.ip.and.blocked}")
     private boolean checkIpAndBlocked;
     @Value("${maximum.count.users.per.account}")
     private int maximumUsersPerAccount;
+    @PostConstruct
+    public void init() {
+        log.info("checkIpAndBlocked: {}", checkIpAndBlocked);
+        log.info("maximumUsersPerAccount: {}", maximumUsersPerAccount);
+    }
 
     @Around("execution(* org.example.aideepseek.controller.ChatController.chat(..))")
     public Object logRequestIp(ProceedingJoinPoint joinPoint) throws Throwable {
+        log.debug("Aspect RequestIpAspect");
         if(checkIpAndBlocked) {
-            String token = null;
             String username = null;
-
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
             HttpServletRequest request = attributes.getRequest();
-
             String authHeader = request.getHeader("Authorization");
             String clientIp = getClientIp(request);
 
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                token = authHeader.substring(7);
-                username = jwtUtil.extractUsername(token);
+                username = jwtUtil.extractUsername(authHeader.substring(7));
             }
 
-            log.info("Request received from IP and username: {}, {}", clientIp, username);
+            log.debug("Request received from IP and username: {}, {}", clientIp, username);
+            SubscriptionModel subscriptionModel = getSubscriptionByEmail.getSubscriptionByEmail(username);
 
-            //добавить логику сохранения логина + ip и блокировку акккаунта, если кол-во юзеров на аккаунт больше maximumUsersPerAccount
+            int size = igniteService.cacheIpGetAndPutElseNewAddress(username, clientIp);
+            if (size > maximumUsersPerAccount) {
+                subscriptionModel.setStatus(Status.BLOCKED);
+                updateSubscription.updateSubscription(subscriptionModel);
+            }
         }
 
 

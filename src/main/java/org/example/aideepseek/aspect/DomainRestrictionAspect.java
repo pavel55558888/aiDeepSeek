@@ -1,4 +1,4 @@
-package org.example.aideepseek.search_ip;
+package org.example.aideepseek.aspect;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.Set;
+import java.util.List;
 
 @Aspect
 @Component
@@ -20,7 +20,7 @@ public class DomainRestrictionAspect {
     private Logger log = LoggerFactory.getLogger(DomainRestrictionAspect.class);
 
     @Value("${whitelist.by.subscription.domain}")
-    private Set<String> ALLOWED_ORIGINS;
+    private List<String> ALLOWED_ORIGINS;
 
     @Around("execution(* org.example.aideepseek.controller.SubscriptionController.setSubscriptionUser(..))")
     public Object checkOrigin(ProceedingJoinPoint joinPoint) throws Throwable {

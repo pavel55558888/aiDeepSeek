@@ -1,7 +1,7 @@
 package org.example.aideepseek.security.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Data;
 
 @Entity
 @Table(name = "users")
@@ -11,10 +11,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String email;
+    @JsonIgnore
     private String password;
 
-    public User(Long id, String email, String password) {
-        this.id = id;
+    public User(String email, String password) {
         this.email = email;
         this.password = password;
     }

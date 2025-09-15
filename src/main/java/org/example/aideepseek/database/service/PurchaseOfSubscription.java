@@ -4,6 +4,6 @@ import org.example.aideepseek.database.model.TransactionSubscriptionModel;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface SetTransaction {
-    void setTransaction(TransactionSubscriptionModel transaction);
+public interface PurchaseOfSubscription {
+    public void purchaseOfSubscription(TransactionSubscriptionModel transactionSubscriptionModel);
 }
