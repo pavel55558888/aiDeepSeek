@@ -40,6 +40,8 @@ public class IgniteConfig {
     private int maxHoursIp;
     @Value("${ignite.message.queue.limit}")
     private int messageQueueLimit;
+    @Value("${ignite.work.directory}")
+    private String workDirectory;
 
     @Bean
     public Ignite igniteStart() {
@@ -65,6 +67,8 @@ public class IgniteConfig {
         cfg.setSystemThreadPoolSize(2);
         cfg.setPublicThreadPoolSize(2);
         cfg.setManagementThreadPoolSize(1);
+
+        cfg.setWorkDirectory(workDirectory);
 
         TcpCommunicationSpi commSpi = new TcpCommunicationSpi();
         commSpi.setMessageQueueLimit(messageQueueLimit);

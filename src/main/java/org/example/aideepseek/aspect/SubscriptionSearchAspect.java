@@ -19,6 +19,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
 @Aspect
 @Component
 @Order(2)
@@ -46,7 +49,7 @@ public class SubscriptionSearchAspect {
             username = jwtUtil.extractUsername(authHeader.substring(7));
         }
 
-        SubscriptionModel subscriptionModel = getSubscriptionByEmail.getSubscriptionByEmail(username);
+        SubscriptionModel subscriptionModel = CheckingSubscriptionPeriod(getSubscriptionByEmail.getSubscriptionByEmail(username));
         if (subscriptionModel == null) {
             log.error("Account " + username + " notfound");
             return ResponseEntity.status(500).body(new DtoError("Ошибка: аккакунт не найден"));
@@ -70,5 +73,25 @@ public class SubscriptionSearchAspect {
         log.debug("Account active subscription {} status {} ", username, subscriptionModel.getStatus());
 
         return joinPoint.proceed();
+    }
+
+    public SubscriptionModel CheckingSubscriptionPeriod(SubscriptionModel subscriptionModel){
+        log.debug("Checking subscription period");
+
+        Instant now = Instant.now();
+        Instant subscriptionStart = subscriptionModel.getTimestamp().toInstant();
+
+        long daysBetween = ChronoUnit.DAYS.between(subscriptionStart, now);
+
+        if (daysBetween > 30) {
+            log.info("Subscription period exceeded 30 days. Days passed: {}", daysBetween);
+            subscriptionModel.setStatus(Status.INACTIVE);
+            updateSubscription.updateSubscription(subscriptionModel);
+        } else {
+            log.debug("Subscription is still valid. Days passed: {}", daysBetween);
+        }
+
+        return subscriptionModel;
+
     }
 }

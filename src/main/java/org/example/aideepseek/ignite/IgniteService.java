@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class IgniteService {
@@ -38,11 +39,8 @@ public class IgniteService {
     public int cacheIpGetAndPutElseNewAddress(String username, String ip) {
         log.debug("Setting list ip " + username);
         log.debug("get ignite cache :" + cacheIp.getName() + "  key: " + username);
-        List<String> cacheUserIp =  cacheIp.get(username);
-        if (cacheUserIp == null) {
-            cacheUserIp = new ArrayList<>();
-            log.debug("Search ip equals null, new key-value");
-        }
+        List<String> cacheUserIp = Optional.ofNullable(cacheIp.get(username))
+                .orElseGet(ArrayList::new);
         if (!cacheUserIp.contains(ip)) {
             log.debug("This new ip address user");
             cacheUserIp.add(ip);
