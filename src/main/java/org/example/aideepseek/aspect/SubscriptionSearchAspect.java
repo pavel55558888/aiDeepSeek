@@ -57,7 +57,8 @@ public class SubscriptionSearchAspect {
             log.debug("Account " + username + " status " + Status.BLOCKED);
             return ResponseEntity.ok().body(new DtoError("Ошибка: ваш аккакунт заблокирован. " +
                     "Причина: многопользовательский аккаунт. " +
-                    "Последнее время данный аккаунт использовался с разных ip адресов"));
+                    "Последнее время данный аккаунт использовался с разных ip адресов. " +
+                    "Для разблокировки оформите подписку снова и не повторяйте ошибок"));
         } else if (subscriptionModel.getStatus().equals(Status.INACTIVE)){
             log.debug("Account " + username + " status " + Status.INACTIVE);
             if (subscriptionModel.getFreeAttempt() > 0){
@@ -75,8 +76,11 @@ public class SubscriptionSearchAspect {
         return joinPoint.proceed();
     }
 
-    public SubscriptionModel CheckingSubscriptionPeriod(SubscriptionModel subscriptionModel){
+    private SubscriptionModel CheckingSubscriptionPeriod(SubscriptionModel subscriptionModel){
         log.debug("Checking subscription period");
+        if (!subscriptionModel.getStatus().equals(Status.ACTIVE)){
+            return subscriptionModel;
+        }
 
         Instant now = Instant.now();
         Instant subscriptionStart = subscriptionModel.getTimestamp().toInstant();
@@ -84,7 +88,7 @@ public class SubscriptionSearchAspect {
         long daysBetween = ChronoUnit.DAYS.between(subscriptionStart, now);
 
         if (daysBetween > 30) {
-            log.info("Subscription period exceeded 30 days. Days passed: {}", daysBetween);
+            log.debug("Subscription period exceeded 30 days. Days passed: {}", daysBetween);
             subscriptionModel.setStatus(Status.INACTIVE);
             updateSubscription.updateSubscription(subscriptionModel);
         } else {

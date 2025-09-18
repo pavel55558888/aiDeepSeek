@@ -51,4 +51,8 @@ public class IgniteService {
         log.debug("Count users ip address " + size);
         return size;
     }
+
+    public void deleteCacheIp(String username) {
+        cacheIp.remove(username);
+    }
 }

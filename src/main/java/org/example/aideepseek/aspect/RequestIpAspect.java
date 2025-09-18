@@ -69,6 +69,7 @@ public class RequestIpAspect {
             if (size > maximumUsersPerAccount) {
                 subscriptionModel.setStatus(Status.BLOCKED);
                 updateSubscription.updateSubscription(subscriptionModel);
+                igniteService.deleteCacheIp(username);
             }
         }
 

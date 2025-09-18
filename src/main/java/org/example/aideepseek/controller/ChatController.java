@@ -23,20 +23,32 @@ public class ChatController {
     }
 
     @PostMapping
-    public ResponseEntity<String> chat(@RequestBody String userMessage) {
+    public ResponseEntity<String> chat(
+            @RequestBody String userMessage,
+            @RequestHeader(value = "format") String format){
+        log.info("format req: " + format);
         log.info(userMessage);
-
-        var taskCache = igniteService.getTask(userMessage);
-
-        if (taskCache != null) {
-            return ResponseEntity.ok(taskCache);
-        }
+        String response = "";
 
         try {
-            String response = deepSeekService.getChatCompletion(userMessage);
-            igniteService.cacheTask(userMessage, response);
+            if (format.equals("html")) {
+                log.info("format html");
+                var taskCache = igniteService.getTask(userMessage);
+
+                if (taskCache != null) {
+                    return ResponseEntity.ok(taskCache);
+                }
+
+                response = deepSeekService.getChatCompletion(userMessage);
+                igniteService.cacheTask(userMessage, response);
+            } else if (format.equals("question")) {
+                response = deepSeekService.getChatCompletion(userMessage);
+            } else {
+                return ResponseEntity.status(500).build();
+            }
+
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
