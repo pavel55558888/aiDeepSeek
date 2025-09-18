@@ -1,4 +1,4 @@
-package org.example.aideepseek.security.dto;
+package org.example.aideepseek.dto;
 
 import lombok.Data;
 

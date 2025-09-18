@@ -2,6 +2,7 @@ package org.example.aideepseek.ignite;
 
 
 import org.apache.ignite.IgniteCache;
+import org.example.aideepseek.dto.SubscriptionInfoStartDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class IgniteService {
@@ -23,6 +25,9 @@ public class IgniteService {
     @Autowired
     @Qualifier("IpCache")
     private IgniteCache<String, List<String>> cacheIp;
+    @Autowired
+    @Qualifier("SubscriptionStartInfo")
+    private IgniteCache<UUID, SubscriptionInfoStartDto> cacheSubscriptionInfo;
 
     public void cacheTask(String key, String value) {
         log.debug("put ignite cache :" + cacheTask.getName() + "  key: " + key + "  value: " + value);
@@ -53,6 +58,17 @@ public class IgniteService {
     }
 
     public void deleteCacheIp(String username) {
+        log.debug("Delete ignite cache :" + cacheIp.getName() + "  key: " + username);
         cacheIp.remove(username);
+    }
+
+    public SubscriptionInfoStartDto getSubscriptionInfo(UUID id) {
+        log.debug("get ignite cache :" + cacheSubscriptionInfo.getName() + "  key: " + id);
+        return cacheSubscriptionInfo.get(id);
+    }
+
+    public void setSubscriptionInfo(UUID id, SubscriptionInfoStartDto subscriptionInfo) {
+        log.debug("set ignite cache :" + cacheSubscriptionInfo.getName() + "  key: " + id + "  value: " + subscriptionInfo);
+        cacheSubscriptionInfo.put(id, subscriptionInfo);
     }
 }

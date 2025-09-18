@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import org.example.aideepseek.database.model.SubscriptionModel;
 import org.example.aideepseek.database.model.enums.Status;
 import org.example.aideepseek.database.service.SetSubscription;
-import org.example.aideepseek.security.dto.DtoError;
-import org.example.aideepseek.security.dto.SignupDTO;
-import org.example.aideepseek.security.dto.UserDTO;
+import org.example.aideepseek.dto.ErrorDto;
+import org.example.aideepseek.dto.SignupDTO;
+import org.example.aideepseek.dto.UserDTO;
 import org.example.aideepseek.security.entities.User;
 import org.example.aideepseek.security.services.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +32,13 @@ public class SignupController {
     @Value("${free.attempt.user}")
     private int freeAttempt;
 
-    private DtoError dtoError = new DtoError();
+    private ErrorDto errorDto = new ErrorDto();
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signupUser(@Valid @RequestBody SignupDTO signupDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()){
-            dtoError.setListError(bindingResult.getAllErrors());
-            return new ResponseEntity<>(dtoError, HttpStatus.BAD_REQUEST);
+            errorDto.setListError(bindingResult.getAllErrors());
+            return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
         }
         User userIsNew = authService.getUserByEmail(signupDTO.getEmail());
         if (userIsNew != null){

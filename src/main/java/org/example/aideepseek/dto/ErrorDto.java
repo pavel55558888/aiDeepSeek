@@ -1,25 +1,25 @@
-package org.example.aideepseek.security.dto;
+package org.example.aideepseek.dto;
 
 import org.springframework.validation.ObjectError;
 
 import java.util.List;
 
-public class DtoError {
+public class ErrorDto {
     private String error;
     private List<ObjectError> listError;
 
-    public DtoError() {
+    public ErrorDto() {
     }
 
-    public DtoError(String error) {
+    public ErrorDto(String error) {
         this.error = error;
     }
 
-    public DtoError(List<ObjectError> listError) {
+    public ErrorDto(List<ObjectError> listError) {
         this.listError = listError;
     }
 
-    public DtoError(String error, List<ObjectError> listError) {
+    public ErrorDto(String error, List<ObjectError> listError) {
         this.error = error;
         this.listError = listError;
     }

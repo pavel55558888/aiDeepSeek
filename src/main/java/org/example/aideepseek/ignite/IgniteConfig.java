@@ -1,12 +1,12 @@
 package org.example.aideepseek.ignite;
 
-import jakarta.annotation.PostConstruct;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.eviction.lru.LruEvictionPolicy;
 import org.apache.ignite.configuration.*;
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
+import org.example.aideepseek.dto.SubscriptionInfoStartDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +17,7 @@ import javax.cache.configuration.FactoryBuilder;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -28,6 +29,8 @@ public class IgniteConfig {
     private String cacheNameTask;
     @Value("${ignite.cache.name.ip}")
     private String cacheNameIp;
+    @Value("${ignite.cache.name.subscription}")
+    private String cacheNameSubscription;
     @Value("${ignite.memory.request}")
     private long memoryRequest;
     @Value("${ignite.memory.limit}")
@@ -38,6 +41,10 @@ public class IgniteConfig {
     private int maxCountIp;
     @Value("${ignite.max.hours.ip}")
     private int maxHoursIp;
+    @Value("${ignite.max.count.subscription}")
+    private int maxCountSubscription;
+    @Value("${ignite.max.min.subscription}")
+    private int maxMinSubscription;
     @Value("${ignite.message.queue.limit}")
     private int messageQueueLimit;
     @Value("${ignite.work.directory}")
@@ -117,6 +124,29 @@ public class IgniteConfig {
         IgniteCache<String, List<String>> cache = ignite.getOrCreateCache(cacheCfg);
         log.info("Cache " + cacheNameIp + " ready with up to " + maxCountIp + " entries");
         log.info("Max lifetime hours " + maxHoursIp);
+        return cache;
+    }
+
+    @Bean("SubscriptionStartInfo")
+    public IgniteCache<UUID, SubscriptionInfoStartDto> igniteSubscriptionStartInfo(Ignite ignite) {
+
+        var cacheCfg = new CacheConfiguration<UUID, SubscriptionInfoStartDto>(cacheNameSubscription);
+        cacheCfg.setBackups(1);
+        cacheCfg.setOnheapCacheEnabled(true);
+
+        cacheCfg.setEvictionPolicy(new LruEvictionPolicy(maxCountSubscription));
+        cacheCfg.setNearConfiguration(null);
+
+        cacheCfg.setExpiryPolicyFactory(
+                FactoryBuilder.factoryOf(new CreatedExpiryPolicy(
+                        new Duration(TimeUnit.MINUTES, maxMinSubscription)
+                ))
+        );
+
+
+        IgniteCache<UUID, SubscriptionInfoStartDto> cache = ignite.getOrCreateCache(cacheCfg);
+        log.info("Cache " + cacheNameSubscription + " ready with up to " + maxCountSubscription + " entries");
+        log.info("Max lifetime min " + maxMinSubscription);
         return cache;
     }
 

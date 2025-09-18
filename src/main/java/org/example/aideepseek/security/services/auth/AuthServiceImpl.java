@@ -1,7 +1,7 @@
 package org.example.aideepseek.security.services.auth;
 
-import org.example.aideepseek.security.dto.SignupDTO;
-import org.example.aideepseek.security.dto.UserDTO;
+import org.example.aideepseek.dto.SignupDTO;
+import org.example.aideepseek.dto.UserDTO;
 import org.example.aideepseek.security.entities.User;
 import org.example.aideepseek.security.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
