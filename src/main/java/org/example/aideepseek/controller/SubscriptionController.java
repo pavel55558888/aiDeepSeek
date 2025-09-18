@@ -5,8 +5,10 @@ import jakarta.validation.Valid;
 import org.example.aideepseek.dto.SubscriptionInfoStartDto;
 import org.example.aideepseek.database.model.TransactionSubscriptionModel;
 import org.example.aideepseek.database.service.*;
+import org.example.aideepseek.dto.SubscriptionInfoStopDto;
 import org.example.aideepseek.ignite.IgniteService;
 import org.example.aideepseek.dto.ErrorDto;
+import org.example.aideepseek.parse_json.ParserJsonStopSubscriptionService;
 import org.example.aideepseek.security.repositories.UserRepository;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.slf4j.Logger;
@@ -30,6 +32,8 @@ public class SubscriptionController {
     private IgniteService igniteService;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    ParserJsonStopSubscriptionService parserJsonStopSubscriptionService;
 
     private ErrorDto errorDto = new ErrorDto();
 
@@ -62,15 +66,20 @@ public class SubscriptionController {
     }
 
     @PostMapping("/subscription/online/end")
-    public void setSubscriptionUser(){
-        String email = "p-vikulinpb@mail.ru";//демо
-        double price = 123545.2245;//демо
+    public ResponseEntity setSubscriptionUser(@RequestBody String requestBody) {
+        SubscriptionInfoStopDto subscriptionInfoStopDto = parserJsonStopSubscriptionService.parseNotification(requestBody);
+        log.debug("Body:" + subscriptionInfoStopDto.toString());
 
-        //уведомление об успешной оплате сравнивать с кэшем, если все ок, то поллучает подписку
-
-        purchaseOfSubscription
+        SubscriptionInfoStartDto subscriptionInfoStartDto = igniteService.getSubscriptionInfo(subscriptionInfoStopDto.getId());
+        if (subscriptionInfoStartDto != null && subscriptionInfoStartDto.getValue() == subscriptionInfoStopDto.getValue()) {
+            igniteService.removeSubscriptionInfo(subscriptionInfoStopDto.getId());
+                    purchaseOfSubscription
                 .purchaseOfSubscription(
-                        new TransactionSubscriptionModel(userRepository.findFirstByEmail(email), price)
+                        new TransactionSubscriptionModel(userRepository.findFirstByEmail(subscriptionInfoStartDto.getUsername()), subscriptionInfoStopDto.getValue())
                 );
+                    return ResponseEntity.ok().build();
+        }else {
+            return ResponseEntity.status(400).build();
+        }
     }
 }

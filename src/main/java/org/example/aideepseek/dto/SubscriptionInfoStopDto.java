@@ -1,0 +1,68 @@
+package org.example.aideepseek.dto;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
+
+import java.time.Instant;
+import java.util.UUID;
+
+public class SubscriptionInfoStopDto {
+
+    @NotNull(message = "ID платежа не может быть null")
+    private UUID id;
+
+    @NotNull(message = "Сумма платежа не может быть null")
+    @Positive(message = "Сумма платежа должна быть положительной")
+    private double value;
+
+    @NotNull(message = "Временная метка не может быть null")
+    @PastOrPresent(message = "Временная метка не может быть в будущем")
+    private Instant created_at;
+
+    public SubscriptionInfoStopDto() {
+    }
+
+    public SubscriptionInfoStopDto(UUID id, double value, Instant created_at) {
+        this.id = id;
+        this.value = value;
+        this.created_at = created_at;
+    }
+
+    public @NotNull(message = "ID платежа не может быть null") UUID getId() {
+        return id;
+    }
+
+    public void setId(@NotNull(message = "ID платежа не может быть null") UUID id) {
+        this.id = id;
+    }
+
+    public @NotNull(message = "Сумма платежа не может быть null")
+    @Positive(message = "Сумма платежа должна быть положительной") double getValue() {
+        return value;
+    }
+
+    public void setValue(@NotNull(message = "Сумма платежа не может быть null")
+                         @Positive(message = "Сумма платежа должна быть положительной") double value) {
+        this.value = value;
+    }
+
+    public @NotNull(message = "Временная метка не может быть null")
+    @PastOrPresent(message = "Временная метка не может быть в будущем") Instant getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(@NotNull(message = "Временная метка не может быть null")
+                              @PastOrPresent(message = "Временная метка не может быть в будущем") Instant created_at) {
+        this.created_at = created_at;
+    }
+
+    @Override
+    public String toString() {
+        return "SubscriptionInfoStopDto{" +
+                "id=" + id +
+                ", value=" + value +
+                ", created_at=" + created_at +
+                '}';
+    }
+}

@@ -71,4 +71,9 @@ public class IgniteService {
         log.debug("set ignite cache :" + cacheSubscriptionInfo.getName() + "  key: " + id + "  value: " + subscriptionInfo);
         cacheSubscriptionInfo.put(id, subscriptionInfo);
     }
+
+    public void removeSubscriptionInfo(UUID id) {
+        log.debug("remove ignite cache :" + cacheSubscriptionInfo.getName() + "  key: " + id);
+        cacheSubscriptionInfo.remove(id);
+    }
 }
