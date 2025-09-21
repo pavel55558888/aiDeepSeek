@@ -19,6 +19,8 @@ public class SingletonConfigUCassaService {
     private long shopId;
     @Value("${ucassa.key}")
     private String key;
+    @Value("${ucassa.price}")
+    private double price;
     @Value("${ucassa.description}")
     private String description;
     @Autowired
@@ -32,7 +34,7 @@ public class SingletonConfigUCassaService {
         Optional<ConfigUCassaModel> configOpt = getConfigUCassa.getConfig();
 
         if (configOpt.isEmpty()) {
-            ConfigUCassaModel newConfig = new ConfigUCassaModel(shopId, key, description);
+            ConfigUCassaModel newConfig = new ConfigUCassaModel(shopId, key, description, price);
 
             setConfigUCassa.setConfig(newConfig);
 

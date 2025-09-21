@@ -17,7 +17,6 @@ public class SubscriptionInfoStopDto {
     private double value;
 
     @NotNull(message = "Временная метка не может быть null")
-    @PastOrPresent(message = "Временная метка не может быть в будущем")
     private Instant created_at;
 
     public SubscriptionInfoStopDto() {
@@ -47,13 +46,11 @@ public class SubscriptionInfoStopDto {
         this.value = value;
     }
 
-    public @NotNull(message = "Временная метка не может быть null")
-    @PastOrPresent(message = "Временная метка не может быть в будущем") Instant getCreated_at() {
+    public @NotNull(message = "Временная метка не может быть null") Instant getCreated_at() {
         return created_at;
     }
 
-    public void setCreated_at(@NotNull(message = "Временная метка не может быть null")
-                              @PastOrPresent(message = "Временная метка не может быть в будущем") Instant created_at) {
+    public void setCreated_at(@NotNull(message = "Временная метка не может быть null") Instant created_at) {
         this.created_at = created_at;
     }
 

@@ -26,13 +26,12 @@ public class ChatController {
     public ResponseEntity<String> chat(
             @RequestBody String userMessage,
             @RequestHeader(value = "format") String format){
-        log.info("format req: " + format);
-        log.info(userMessage);
+        log.debug("format req: " + format);
+        log.debug(userMessage);
         String response = "";
 
         try {
             if (format.equals("html")) {
-                log.info("format html");
                 var taskCache = igniteService.getTask(userMessage);
 
                 if (taskCache != null) {

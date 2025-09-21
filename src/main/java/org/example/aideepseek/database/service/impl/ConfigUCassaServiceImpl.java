@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @Service
 public class ConfigUCassaServiceImpl implements GetConfigUCassa, UpdateConfigUCassa, SetConfigUCassa {
+
     @Autowired
     private ConfigUCassa configUCassa;
 

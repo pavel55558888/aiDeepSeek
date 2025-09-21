@@ -11,15 +11,18 @@ public class ConfigUCassaModel {
     private long shopId;
     private String key;
     private String description;
+    private double value;
 
     public ConfigUCassaModel() {
     }
 
-    public ConfigUCassaModel(long shopId, String key, String description) {
+    public ConfigUCassaModel(long shopId, String key, String description, double value) {
         this.shopId = shopId;
         this.key = key;
         this.description = description;
+        this.value = value;
     }
+
 
     public int getId() {
         return id;
@@ -51,5 +54,13 @@ public class ConfigUCassaModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
     }
 }
