@@ -1,7 +1,7 @@
 package org.example.aideepseek.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.example.aideepseek.database.service.GetSubscriptionByEmail;
+import org.example.aideepseek.database.service.subscription.GetSubscriptionByEmail;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

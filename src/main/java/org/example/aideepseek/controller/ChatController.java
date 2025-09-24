@@ -2,9 +2,11 @@ package org.example.aideepseek.controller;
 
 
 import org.example.aideepseek.deepseek.service.DeepSeekService;
-import org.example.aideepseek.ignite.IgniteService;
+import org.example.aideepseek.ignite.service.task.GetTask;
+import org.example.aideepseek.ignite.service.task.SetCacheTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,14 +15,12 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
     private Logger log = LoggerFactory.getLogger(ChatController.class);
 
-    private final DeepSeekService deepSeekService;
-
-    private final IgniteService igniteService;
-
-    public ChatController(DeepSeekService deepSeekService, IgniteService igniteService) {
-        this.deepSeekService = deepSeekService;
-        this.igniteService = igniteService;
-    }
+    @Autowired
+    private DeepSeekService deepSeekService;
+    @Autowired
+    private GetTask getTask;
+    @Autowired
+    private SetCacheTask setCacheTask;
 
     @PostMapping
     public ResponseEntity<String> chat(
@@ -32,14 +32,14 @@ public class ChatController {
 
         try {
             if (format.equals("html")) {
-                var taskCache = igniteService.getTask(userMessage);
+                var taskCache = getTask.getTask(userMessage);
 
                 if (taskCache != null) {
                     return ResponseEntity.ok(taskCache);
                 }
 
                 response = deepSeekService.getChatCompletion(userMessage);
-                igniteService.cacheTask(userMessage, response);
+                setCacheTask.setCacheTask(userMessage, response);
             } else if (format.equals("question")) {
                 response = deepSeekService.getChatCompletion(userMessage);
             } else {

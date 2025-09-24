@@ -7,28 +7,30 @@ import jakarta.persistence.*;
 public class ConfigUCassaModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
     private long shopId;
     private String key;
     private String description;
     private double value;
+    private String type;
 
     public ConfigUCassaModel() {
     }
 
-    public ConfigUCassaModel(long shopId, String key, String description, double value) {
+    public ConfigUCassaModel(long shopId, String key, String description, double value, String type) {
         this.shopId = shopId;
         this.key = key;
         this.description = description;
         this.value = value;
+        this.type = type;
     }
 
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -62,5 +64,13 @@ public class ConfigUCassaModel {
 
     public void setValue(double value) {
         this.value = value;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

@@ -8,9 +8,10 @@ import org.aspectj.lang.annotation.Aspect;
 import org.example.aideepseek.aspect.RequestIpAspect;
 import org.example.aideepseek.database.model.SubscriptionModel;
 import org.example.aideepseek.database.model.enums.Status;
-import org.example.aideepseek.database.service.GetSubscriptionByEmail;
-import org.example.aideepseek.database.service.UpdateSubscription;
-import org.example.aideepseek.ignite.IgniteService;
+import org.example.aideepseek.database.service.subscription.GetSubscriptionByEmail;
+import org.example.aideepseek.database.service.subscription.UpdateSubscription;
+import org.example.aideepseek.ignite.service.ip.CacheIpGetAndPutElseNewAddress;
+import org.example.aideepseek.ignite.service.ip.RemoveCacheIp;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,9 @@ public class RequestIpAspectImpl implements RequestIpAspect {
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
-    private IgniteService igniteService;
+    private CacheIpGetAndPutElseNewAddress cacheIpGetAndPutElseNewAddress;
+    @Autowired
+    private RemoveCacheIp removeCacheIp;
     @Autowired
     private GetSubscriptionByEmail getSubscriptionByEmail;
     @Autowired
@@ -67,11 +70,11 @@ public class RequestIpAspectImpl implements RequestIpAspect {
             log.debug("Request received from IP and username: {}, {}", clientIp, username);
             SubscriptionModel subscriptionModel = getSubscriptionByEmail.getSubscriptionByEmail(username);
 
-            int size = igniteService.cacheIpGetAndPutElseNewAddress(username, clientIp);
+            int size = cacheIpGetAndPutElseNewAddress.cacheIpGetAndPutElseNewAddress(username, clientIp);
             if (size > maximumUsersPerAccount) {
                 subscriptionModel.setStatus(Status.BLOCKED);
                 updateSubscription.updateSubscription(subscriptionModel);
-                igniteService.deleteCacheIp(username);
+                removeCacheIp.removeCacheIp(username);
             }
         }
 

@@ -2,12 +2,14 @@ package org.example.aideepseek.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.example.aideepseek.database.service.subscription.PurchaseOfSubscription;
 import org.example.aideepseek.dto.SubscriptionInfoStartDto;
 import org.example.aideepseek.database.model.TransactionSubscriptionModel;
-import org.example.aideepseek.database.service.*;
 import org.example.aideepseek.dto.SubscriptionInfoStopDto;
-import org.example.aideepseek.ignite.IgniteService;
 import org.example.aideepseek.dto.ErrorDto;
+import org.example.aideepseek.ignite.service.subscription.GetSubscriptionInfo;
+import org.example.aideepseek.ignite.service.subscription.RemoveSubscriptionInfo;
+import org.example.aideepseek.ignite.service.subscription.SetSubscriptionInfo;
 import org.example.aideepseek.parse_json.ParserJsonStopSubscriptionService;
 import org.example.aideepseek.security.repositories.UserRepository;
 import org.example.aideepseek.security.util.JwtUtil;
@@ -29,7 +31,11 @@ public class SubscriptionController {
     @Autowired
     private PurchaseOfSubscription purchaseOfSubscription;
     @Autowired
-    private IgniteService igniteService;
+    private SetSubscriptionInfo setSubscriptionInfo;
+    @Autowired
+    private GetSubscriptionInfo getSubscriptionInfo;
+    @Autowired
+    private RemoveSubscriptionInfo removeSubscriptionInfo;
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
@@ -58,7 +64,7 @@ public class SubscriptionController {
 
         subscriptionInfoStartDto.setUsername(username);
 
-        igniteService.setSubscriptionInfo(subscriptionInfoStartDto.getId(), subscriptionInfoStartDto);
+        setSubscriptionInfo.setSubscriptionInfo(subscriptionInfoStartDto.getId(), subscriptionInfoStartDto);
 
         log.debug("Start subscription " + subscriptionInfoStartDto);
 
@@ -70,9 +76,9 @@ public class SubscriptionController {
         SubscriptionInfoStopDto subscriptionInfoStopDto = parserJsonStopSubscriptionService.parseNotification(requestBody);
         log.debug("Body:" + subscriptionInfoStopDto.toString());
 
-        SubscriptionInfoStartDto subscriptionInfoStartDto = igniteService.getSubscriptionInfo(subscriptionInfoStopDto.getId());
+        SubscriptionInfoStartDto subscriptionInfoStartDto = getSubscriptionInfo.getSubscriptionInfo(subscriptionInfoStopDto.getId());
         if (subscriptionInfoStartDto != null && subscriptionInfoStartDto.getValue() == subscriptionInfoStopDto.getValue()) {
-            igniteService.removeSubscriptionInfo(subscriptionInfoStopDto.getId());
+            removeSubscriptionInfo.removeSubscriptionInfo(subscriptionInfoStopDto.getId());
                     purchaseOfSubscription
                 .purchaseOfSubscription(
                         new TransactionSubscriptionModel(userRepository.findFirstByEmail(subscriptionInfoStartDto.getUsername()), subscriptionInfoStopDto.getValue())
