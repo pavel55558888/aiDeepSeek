@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class DeepSeekService {
 
-    private final Logger log = LoggerFactory.getLogger(DeepSeekService.class);
+    private static final Logger log = LoggerFactory.getLogger(DeepSeekService.class);
     private final RestTemplate restTemplate;
     private final String deepseekApiUrl;
     private final String apiKey;

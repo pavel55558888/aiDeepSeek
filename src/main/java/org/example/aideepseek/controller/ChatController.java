@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/chat/v1")
 public class ChatController {
-    private Logger log = LoggerFactory.getLogger(ChatController.class);
+    private static final Logger log = LoggerFactory.getLogger(ChatController.class);
 
     @Autowired
     private DeepSeekService deepSeekService;
@@ -38,8 +38,15 @@ public class ChatController {
                     return ResponseEntity.ok(taskCache);
                 }
 
-                response = deepSeekService.getChatCompletion(userMessage);
-                setCacheTask.setCacheTask(userMessage, response);
+
+                String question = "";
+                String answer = "";
+
+                //далее отправляем в дипсик и получаем верный ответ
+                response = deepSeekService.getChatCompletion(question + answer + ". Верни только верный ответ на вопрос без лишних символов и букв");
+
+
+                setCacheTask.setCacheTask(question, response);
             } else if (format.equals("question")) {
                 response = deepSeekService.getChatCompletion(userMessage);
             } else {

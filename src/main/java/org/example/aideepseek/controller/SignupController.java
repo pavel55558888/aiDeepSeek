@@ -32,7 +32,7 @@ public class SignupController {
     @Value("${free.attempt.user}")
     private int freeAttempt;
 
-    private ErrorDto errorDto = new ErrorDto();
+    private static final ErrorDto errorDto = new ErrorDto();
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signupUser(@Valid @RequestBody SignupDTO signupDTO, BindingResult bindingResult) {

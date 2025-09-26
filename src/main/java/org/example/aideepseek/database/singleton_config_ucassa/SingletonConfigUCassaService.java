@@ -34,7 +34,7 @@ public class SingletonConfigUCassaService {
     private SetConfigUCassa setConfigUCassa;
     @Autowired
     private DeleteConfigAllUCassa deleteConfigAllUCassa;
-    private Logger log = LoggerFactory.getLogger(SingletonConfigUCassaService.class);
+    private static final Logger log = LoggerFactory.getLogger(SingletonConfigUCassaService.class);
 
     @PostConstruct
     private void init() {

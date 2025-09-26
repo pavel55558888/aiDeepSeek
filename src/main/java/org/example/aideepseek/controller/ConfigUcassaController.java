@@ -18,7 +18,7 @@ import java.util.Optional;
 public class ConfigUcassaController {
     @Autowired
     private GetConfigUCassa getConfigUCassa;
-    private Logger log = LoggerFactory.getLogger(ConfigUcassaController.class);
+    private static final Logger log = LoggerFactory.getLogger(ConfigUcassaController.class);
 
     @GetMapping("/config")
     public ResponseEntity<?> getConfig() {

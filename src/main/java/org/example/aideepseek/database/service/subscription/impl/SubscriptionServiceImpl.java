@@ -30,7 +30,7 @@ public class SubscriptionServiceImpl implements GetSubscriptionByEmail, SetSubsc
     }
 
     @Override
-    public void purchaseOfSubscription(TransactionSubscriptionModel transactionSubscriptionModel) {
-        subscription.purchaseOfSubscription(transactionSubscriptionModel);
+    public void purchaseOfSubscription(TransactionSubscriptionModel transactionSubscriptionModel, boolean subscription, int attempt) {
+        this.subscription.purchaseOfSubscription(transactionSubscriptionModel, subscription, attempt);
     }
 }

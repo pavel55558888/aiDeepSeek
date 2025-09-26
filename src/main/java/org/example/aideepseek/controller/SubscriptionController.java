@@ -10,7 +10,7 @@ import org.example.aideepseek.dto.ErrorDto;
 import org.example.aideepseek.ignite.service.subscription.GetSubscriptionInfo;
 import org.example.aideepseek.ignite.service.subscription.RemoveSubscriptionInfo;
 import org.example.aideepseek.ignite.service.subscription.SetSubscriptionInfo;
-import org.example.aideepseek.parse_json.ParserJsonStopSubscriptionService;
+import org.example.aideepseek.parser_json.ParserJsonStopSubscriptionService;
 import org.example.aideepseek.security.repositories.UserRepository;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.slf4j.Logger;
@@ -39,11 +39,11 @@ public class SubscriptionController {
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
-    ParserJsonStopSubscriptionService parserJsonStopSubscriptionService;
+    private ParserJsonStopSubscriptionService parserJsonStopSubscriptionService;
 
-    private ErrorDto errorDto = new ErrorDto();
+    private static final ErrorDto errorDto = new ErrorDto();
 
-    private Logger log = LoggerFactory.getLogger(SubscriptionController.class);
+    private static final Logger log = LoggerFactory.getLogger(SubscriptionController.class);
 
     @PostMapping("/subscription/online/start")
     public ResponseEntity<?> startSubscription(@Valid @RequestBody SubscriptionInfoStartDto subscriptionInfoStartDto, BindingResult bindingResult) {
@@ -78,12 +78,55 @@ public class SubscriptionController {
 
         SubscriptionInfoStartDto subscriptionInfoStartDto = getSubscriptionInfo.getSubscriptionInfo(subscriptionInfoStopDto.getId());
         if (subscriptionInfoStartDto != null && subscriptionInfoStartDto.getValue() == subscriptionInfoStopDto.getValue()) {
-            removeSubscriptionInfo.removeSubscriptionInfo(subscriptionInfoStopDto.getId());
+
+            if ("subscription".equals(subscriptionInfoStartDto.getType())) {
+
+                log.debug("Case: subscription");
+
+                purchaseOfSubscription
+                        .purchaseOfSubscription(
+                                new TransactionSubscriptionModel(
+                                        userRepository.findFirstByEmail(
+                                                subscriptionInfoStartDto.getUsername()),
+                                        subscriptionInfoStopDto.getValue()
+                                ),
+                                true,
+                                0
+                        );
+
+            } else if (subscriptionInfoStartDto.getType().startsWith("attempt;")) {
+
+                String numberPart = subscriptionInfoStartDto.getType().substring("attempt;".length());
+
+                try {
+                    int attempt = Integer.parseInt(numberPart);
+                    log.debug("Case: attempt = " + attempt);
+
+
+
                     purchaseOfSubscription
-                .purchaseOfSubscription(
-                        new TransactionSubscriptionModel(userRepository.findFirstByEmail(subscriptionInfoStartDto.getUsername()), subscriptionInfoStopDto.getValue())
-                );
-                    return ResponseEntity.ok().build();
+                            .purchaseOfSubscription(
+                                    new TransactionSubscriptionModel(
+                                            userRepository.findFirstByEmail(
+                                                    subscriptionInfoStartDto.getUsername()),
+                                            subscriptionInfoStopDto.getValue()
+                                    ),
+                                    false,
+                                    attempt
+                            );
+
+                } catch (NumberFormatException e) {
+                    log.error("Invalid number format in: " + subscriptionInfoStartDto.getType());
+                    return ResponseEntity.status(400).build();
+                }
+            }else {
+                log.error("Case: invalid format 'type'");
+                return ResponseEntity.status(400).build();
+            }
+
+            removeSubscriptionInfo.removeSubscriptionInfo(subscriptionInfoStopDto.getId());
+
+            return ResponseEntity.ok().build();
         }else {
             return ResponseEntity.status(400).build();
         }

@@ -35,7 +35,8 @@ public class AuthenticationController {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    private ErrorDto errorDto = new ErrorDto();
+    private static final ErrorDto errorDto = new ErrorDto();
+
     @PostMapping("/authenticate")
     public <T> T createAuthenticationToken(@Valid @RequestBody AuthenticationDTO authenticationDTO, BindingResult bindingResult, HttpServletResponse response) throws BadCredentialsException, DisabledException, UsernameNotFoundException, IOException {
         if (bindingResult.hasErrors()){

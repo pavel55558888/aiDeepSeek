@@ -35,7 +35,7 @@ public class SubscriptionImpl implements Subscription {
     }
 
     @Override
-    public void purchaseOfSubscription(TransactionSubscriptionModel transactionSubscriptionModel) {
+    public void purchaseOfSubscription(TransactionSubscriptionModel transactionSubscriptionModel, boolean subscription, int attempt) {
         entityManager.persist(transactionSubscriptionModel);
         String email = transactionSubscriptionModel.getUser().getEmail();
         SubscriptionModel subscriptionModel = entityManager.createQuery(
@@ -45,7 +45,12 @@ public class SubscriptionImpl implements Subscription {
                 .getSingleResult();
 
         subscriptionModel.setTimestamp(new Timestamp(System.currentTimeMillis()));
-        subscriptionModel.setStatus(Status.ACTIVE);
+
+        if (subscription) {
+            subscriptionModel.setStatus(Status.ACTIVE);
+        }else{
+            subscriptionModel.setFreeAttempt(subscriptionModel.getFreeAttempt()+ attempt);
+        }
         entityManager.merge(subscriptionModel);
     }
 }

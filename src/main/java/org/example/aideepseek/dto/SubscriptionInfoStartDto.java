@@ -1,5 +1,6 @@
 package org.example.aideepseek.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
@@ -19,22 +20,19 @@ public class SubscriptionInfoStartDto implements Serializable {
     @NotNull(message = "Временная метка не может быть null")
     private Instant created_at;
 
+    @NotBlank(message = "Тип не может быть пустым")
+    private String type;
+
     private String username;
 
     public SubscriptionInfoStartDto() {
     }
 
-    public SubscriptionInfoStartDto(UUID id, double value, Instant created_at) {
+    public SubscriptionInfoStartDto(UUID id, double value, Instant created_at, String type) {
         this.id = id;
         this.value = value;
         this.created_at = created_at;
-    }
-
-    public SubscriptionInfoStartDto(UUID id, double value, Instant created_at, String username) {
-        this.id = id;
-        this.value = value;
-        this.created_at = created_at;
-        this.username = username;
+        this.type = type;
     }
 
     @NotNull(message = "Сумма подписки не может быть null")
@@ -69,6 +67,14 @@ public class SubscriptionInfoStartDto implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public @NotBlank(message = "Тип не может быть пустым") String getType() {
+        return type;
+    }
+
+    public void setType(@NotBlank(message = "Тип не может быть пустым") String type) {
+        this.type = type;
     }
 
     @Override

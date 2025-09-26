@@ -1,4 +1,4 @@
-package org.example.aideepseek.parse_json;
+package org.example.aideepseek.parser_json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @Service
 public class ParserJsonStopSubscriptionService {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public SubscriptionInfoStopDto parseNotification(String notificationJson) {
         try {

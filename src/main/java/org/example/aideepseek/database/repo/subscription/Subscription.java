@@ -15,5 +15,5 @@ public interface Subscription {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void updateSubscription(SubscriptionModel subscription);
     @Transactional
-    public void purchaseOfSubscription(TransactionSubscriptionModel transactionSubscriptionModel);
+    public void purchaseOfSubscription(TransactionSubscriptionModel transactionSubscriptionModel, boolean subscription, int attempt);
 }
