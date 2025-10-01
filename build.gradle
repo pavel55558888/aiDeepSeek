@@ -34,6 +34,7 @@ dependencies {
     implementation 'org.apache.ignite:ignite-core:2.17.0'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.jsoup:jsoup:1.21.2'
+    implementation 'com.google.code.gson:gson:2.13.2'
 
 }
 
