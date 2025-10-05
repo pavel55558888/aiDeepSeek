@@ -4,7 +4,7 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.cache.eviction.lru.LruEvictionPolicy;
 import org.apache.ignite.configuration.CacheConfiguration;
-import org.example.aideepseek.dto.SubscriptionInfoStartDto;
+import org.example.aideepseek.dto.SubscriptionInfoStartDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,9 +30,9 @@ public class IgniteConfigCacheSubscriptionStartInfoImpl {
     private String cacheNameSubscription;
 
     @Bean("SubscriptionStartInfo")
-    public IgniteCache<UUID, SubscriptionInfoStartDto> igniteSubscriptionStartInfo(Ignite ignite) {
+    public IgniteCache<UUID, SubscriptionInfoStartDTO> igniteSubscriptionStartInfo(Ignite ignite) {
 
-        var cacheCfg = new CacheConfiguration<UUID, SubscriptionInfoStartDto>(cacheNameSubscription);
+        var cacheCfg = new CacheConfiguration<UUID, SubscriptionInfoStartDTO>(cacheNameSubscription);
         cacheCfg.setBackups(1);
         cacheCfg.setOnheapCacheEnabled(true);
 
@@ -46,7 +46,7 @@ public class IgniteConfigCacheSubscriptionStartInfoImpl {
         );
 
 
-        IgniteCache<UUID, SubscriptionInfoStartDto> cache = ignite.getOrCreateCache(cacheCfg);
+        IgniteCache<UUID, SubscriptionInfoStartDTO> cache = ignite.getOrCreateCache(cacheCfg);
         log.info("Cache " + cacheNameSubscription + " ready with up to " + maxCountSubscription + " entries");
         log.info("Max lifetime min " + maxMinSubscription);
         return cache;

@@ -1,13 +1,12 @@
 package org.example.aideepseek.dto;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 
 import java.time.Instant;
 import java.util.UUID;
 
-public class SubscriptionInfoStopDto {
+public class SubscriptionInfoStopDTO {
 
     @NotNull(message = "ID платежа не может быть null")
     private UUID id;
@@ -19,10 +18,10 @@ public class SubscriptionInfoStopDto {
     @NotNull(message = "Временная метка не может быть null")
     private Instant created_at;
 
-    public SubscriptionInfoStopDto() {
+    public SubscriptionInfoStopDTO() {
     }
 
-    public SubscriptionInfoStopDto(UUID id, double value, Instant created_at) {
+    public SubscriptionInfoStopDTO(UUID id, double value, Instant created_at) {
         this.id = id;
         this.value = value;
         this.created_at = created_at;

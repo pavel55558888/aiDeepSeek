@@ -1,12 +1,12 @@
-package org.example.aideepseek.controller;
+package org.example.aideepseek.controller.subscription;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.example.aideepseek.database.service.subscription.PurchaseOfSubscription;
-import org.example.aideepseek.dto.SubscriptionInfoStartDto;
+import org.example.aideepseek.dto.SubscriptionInfoStartDTO;
 import org.example.aideepseek.database.model.TransactionSubscriptionModel;
-import org.example.aideepseek.dto.SubscriptionInfoStopDto;
-import org.example.aideepseek.dto.ErrorDto;
+import org.example.aideepseek.dto.SubscriptionInfoStopDTO;
+import org.example.aideepseek.dto.ErrorDTO;
 import org.example.aideepseek.ignite.service.subscription.GetSubscriptionInfo;
 import org.example.aideepseek.ignite.service.subscription.RemoveSubscriptionInfo;
 import org.example.aideepseek.ignite.service.subscription.SetSubscriptionInfo;
@@ -41,12 +41,12 @@ public class SubscriptionController {
     @Autowired
     private ParserJsonStopSubscriptionService parserJsonStopSubscriptionService;
 
-    private static final ErrorDto errorDto = new ErrorDto();
+    private static final ErrorDTO errorDto = new ErrorDTO();
 
     private static final Logger log = LoggerFactory.getLogger(SubscriptionController.class);
 
     @PostMapping("/subscription/online/start")
-    public ResponseEntity<?> startSubscription(@Valid @RequestBody SubscriptionInfoStartDto subscriptionInfoStartDto, BindingResult bindingResult) {
+    public ResponseEntity<?> startSubscription(@Valid @RequestBody SubscriptionInfoStartDTO subscriptionInfoStartDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()){
             errorDto.setListError(bindingResult.getAllErrors());
             return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
@@ -73,10 +73,10 @@ public class SubscriptionController {
 
     @PostMapping("/subscription/online/end")
     public ResponseEntity setSubscriptionUser(@RequestBody String requestBody) {
-        SubscriptionInfoStopDto subscriptionInfoStopDto = parserJsonStopSubscriptionService.parseNotification(requestBody);
+        SubscriptionInfoStopDTO subscriptionInfoStopDto = parserJsonStopSubscriptionService.parseNotification(requestBody);
         log.debug("Body:" + subscriptionInfoStopDto.toString());
 
-        SubscriptionInfoStartDto subscriptionInfoStartDto = getSubscriptionInfo.getSubscriptionInfo(subscriptionInfoStopDto.getId());
+        SubscriptionInfoStartDTO subscriptionInfoStartDto = getSubscriptionInfo.getSubscriptionInfo(subscriptionInfoStopDto.getId());
         if (subscriptionInfoStartDto != null && subscriptionInfoStartDto.getValue() == subscriptionInfoStopDto.getValue()) {
 
             if ("subscription".equals(subscriptionInfoStartDto.getType())) {

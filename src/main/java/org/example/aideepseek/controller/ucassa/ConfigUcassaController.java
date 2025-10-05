@@ -1,4 +1,4 @@
-package org.example.aideepseek.controller;
+package org.example.aideepseek.controller.ucassa;
 
 import org.example.aideepseek.database.model.ConfigUCassaModel;
 import org.example.aideepseek.database.service.ucassa.GetConfigUCassa;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")

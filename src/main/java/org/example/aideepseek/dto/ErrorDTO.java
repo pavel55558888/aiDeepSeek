@@ -4,22 +4,22 @@ import org.springframework.validation.ObjectError;
 
 import java.util.List;
 
-public class ErrorDto {
+public class ErrorDTO {
     private String error;
     private List<ObjectError> listError;
 
-    public ErrorDto() {
+    public ErrorDTO() {
     }
 
-    public ErrorDto(String error) {
+    public ErrorDTO(String error) {
         this.error = error;
     }
 
-    public ErrorDto(List<ObjectError> listError) {
+    public ErrorDTO(List<ObjectError> listError) {
         this.listError = listError;
     }
 
-    public ErrorDto(String error, List<ObjectError> listError) {
+    public ErrorDTO(String error, List<ObjectError> listError) {
         this.error = error;
         this.listError = listError;
     }

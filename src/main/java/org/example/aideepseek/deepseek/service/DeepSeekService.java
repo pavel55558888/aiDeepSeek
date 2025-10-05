@@ -26,7 +26,7 @@ public class DeepSeekService {
     public DeepSeekService(
             @Value("${deepseek.api.url}") String deepseekApiUrl,
             @Value("${deepseek.api.key}") String apiKey,
-            @Value("${deepseel.api.model}") String model,
+            @Value("${deepseek.api.model}") String model,
             @Value("${deepseek.api.max.tokens}") int maxTokens,
             @Value("${deepseek.api.temperature}") double temperature
      ) {

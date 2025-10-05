@@ -1,4 +1,4 @@
-package org.example.aideepseek.controller;
+package org.example.aideepseek.controller.ucassa;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

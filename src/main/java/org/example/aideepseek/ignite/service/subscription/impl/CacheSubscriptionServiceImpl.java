@@ -1,6 +1,6 @@
 package org.example.aideepseek.ignite.service.subscription.impl;
 
-import org.example.aideepseek.dto.SubscriptionInfoStartDto;
+import org.example.aideepseek.dto.SubscriptionInfoStartDTO;
 import org.example.aideepseek.ignite.repository.subscription.CacheSubscriptionRepo;
 import org.example.aideepseek.ignite.service.subscription.GetSubscriptionInfo;
 import org.example.aideepseek.ignite.service.subscription.RemoveSubscriptionInfo;
@@ -16,7 +16,7 @@ public class CacheSubscriptionServiceImpl implements GetSubscriptionInfo, SetSub
     private CacheSubscriptionRepo cacheSubscriptionRepo;
 
     @Override
-    public SubscriptionInfoStartDto getSubscriptionInfo(UUID id) {
+    public SubscriptionInfoStartDTO getSubscriptionInfo(UUID id) {
         return cacheSubscriptionRepo.getSubscriptionInfo(id);
     }
 
@@ -26,7 +26,7 @@ public class CacheSubscriptionServiceImpl implements GetSubscriptionInfo, SetSub
     }
 
     @Override
-    public void setSubscriptionInfo(UUID id, SubscriptionInfoStartDto subscriptionInfo) {
+    public void setSubscriptionInfo(UUID id, SubscriptionInfoStartDTO subscriptionInfo) {
         cacheSubscriptionRepo.setSubscriptionInfo(id, subscriptionInfo);
     }
 }

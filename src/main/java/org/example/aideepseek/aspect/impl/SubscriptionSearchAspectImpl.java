@@ -9,7 +9,7 @@ import org.example.aideepseek.database.model.SubscriptionModel;
 import org.example.aideepseek.database.model.enums.Status;
 import org.example.aideepseek.database.service.subscription.GetSubscriptionByEmail;
 import org.example.aideepseek.database.service.subscription.UpdateSubscription;
-import org.example.aideepseek.dto.ErrorDto;
+import org.example.aideepseek.dto.ErrorDTO;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class SubscriptionSearchAspectImpl implements SubscriptionSearchAspect {
     private JwtUtil jwtUtil;
     private Logger log = LoggerFactory.getLogger(SubscriptionSearchAspectImpl.class);
 
-    @Around("execution(* org.example.aideepseek.controller.ChatController.chat(..))")
+    @Around("execution(* org.example.aideepseek.controller.deepseek.DeepSeekController.chat(..))")
     @Override
     public Object searchSubscription(ProceedingJoinPoint joinPoint) throws Throwable {
         log.debug("Aspect searchSubscription");
@@ -54,10 +54,10 @@ public class SubscriptionSearchAspectImpl implements SubscriptionSearchAspect {
         SubscriptionModel subscriptionModel = CheckingSubscriptionPeriod(getSubscriptionByEmail.getSubscriptionByEmail(username));
         if (subscriptionModel == null) {
             log.error("Account " + username + " notfound");
-            return ResponseEntity.status(500).body(new ErrorDto("Ошибка: аккакунт не найден"));
+            return ResponseEntity.status(500).body(new ErrorDTO("Ошибка: аккакунт не найден"));
         }else if (subscriptionModel.getStatus() == Status.BLOCKED) {
             log.debug("Account " + username + " status " + Status.BLOCKED);
-            return ResponseEntity.ok().body(new ErrorDto("Ошибка: ваш аккакунт заблокирован. " +
+            return ResponseEntity.ok().body(new ErrorDTO("Ошибка: ваш аккакунт заблокирован. " +
                     "Причина: многопользовательский аккаунт. " +
                     "Последнее время данный аккаунт использовался с разных ip адресов. " +
                     "Для разблокировки оформите подписку снова и не повторяйте ошибок"));
@@ -69,7 +69,7 @@ public class SubscriptionSearchAspectImpl implements SubscriptionSearchAspect {
                 log.debug("Account " + username + " free attempt " + subscriptionModel.getFreeAttempt());
             }else {
                 log.debug("Account " + username + " free attempt equals 0 " + subscriptionModel.getFreeAttempt());
-                return ResponseEntity.ok().body(new ErrorDto("Ошибка: бесплатные попытки закончились. Оформите подписку"));
+                return ResponseEntity.ok().body(new ErrorDTO("Ошибка: бесплатные попытки закончились. Оформите подписку"));
             }
         }
 

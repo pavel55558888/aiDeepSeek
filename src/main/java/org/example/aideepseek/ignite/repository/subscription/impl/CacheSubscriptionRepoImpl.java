@@ -1,7 +1,7 @@
 package org.example.aideepseek.ignite.repository.subscription.impl;
 
 import org.apache.ignite.IgniteCache;
-import org.example.aideepseek.dto.SubscriptionInfoStartDto;
+import org.example.aideepseek.dto.SubscriptionInfoStartDTO;
 import org.example.aideepseek.ignite.repository.subscription.CacheSubscriptionRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,16 +17,16 @@ public class CacheSubscriptionRepoImpl implements CacheSubscriptionRepo {
 
     @Autowired
     @Qualifier("SubscriptionStartInfo")
-    private IgniteCache<UUID, SubscriptionInfoStartDto> cacheSubscriptionInfo;
+    private IgniteCache<UUID, SubscriptionInfoStartDTO> cacheSubscriptionInfo;
 
     @Override
-    public SubscriptionInfoStartDto getSubscriptionInfo(UUID id) {
+    public SubscriptionInfoStartDTO getSubscriptionInfo(UUID id) {
         log.debug("get ignite cache :" + cacheSubscriptionInfo.getName() + "  key: " + id);
         return cacheSubscriptionInfo.get(id);
     }
 
     @Override
-    public void setSubscriptionInfo(UUID id, SubscriptionInfoStartDto subscriptionInfo) {
+    public void setSubscriptionInfo(UUID id, SubscriptionInfoStartDTO subscriptionInfo) {
         log.debug("set ignite cache :" + cacheSubscriptionInfo.getName() + "  key: " + id + "  value: " + subscriptionInfo);
         cacheSubscriptionInfo.put(id, subscriptionInfo);
     }

@@ -2,7 +2,7 @@ package org.example.aideepseek.parser_json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.aideepseek.dto.SubscriptionInfoStopDto;
+import org.example.aideepseek.dto.SubscriptionInfoStopDTO;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -14,7 +14,7 @@ public class ParserJsonStopSubscriptionService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public SubscriptionInfoStopDto parseNotification(String notificationJson) {
+    public SubscriptionInfoStopDTO parseNotification(String notificationJson) {
         try {
             JsonNode rootNode = objectMapper.readTree(notificationJson);
             JsonNode objectNode = rootNode.path("object");
@@ -27,7 +27,7 @@ public class ParserJsonStopSubscriptionService {
             double value = Double.parseDouble(valueStr);
             Instant createdAt = Instant.parse(createdAtStr);
 
-            return new SubscriptionInfoStopDto(id, value, createdAt);
+            return new SubscriptionInfoStopDTO(id, value, createdAt);
 
         } catch (IllegalArgumentException | DateTimeParseException e) {
             throw new IllegalArgumentException("Incorrect data format in the body", e);

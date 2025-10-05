@@ -52,7 +52,7 @@ public class RequestIpAspectImpl implements RequestIpAspect {
         log.info("maximumUsersPerAccount: {}", maximumUsersPerAccount);
     }
 
-    @Around("execution(* org.example.aideepseek.controller.ChatController.chat(..))")
+    @Around("execution(* org.example.aideepseek.controller.deepseek.DeepSeekController.chat(..))")
     @Override
     public Object logRequestIp(ProceedingJoinPoint joinPoint) throws Throwable {
         log.debug("Aspect RequestIpAspectImpl");

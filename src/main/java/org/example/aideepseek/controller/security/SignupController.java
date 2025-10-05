@@ -1,10 +1,10 @@
-package org.example.aideepseek.controller;
+package org.example.aideepseek.controller.security;
 
 import jakarta.validation.Valid;
 import org.example.aideepseek.database.model.SubscriptionModel;
 import org.example.aideepseek.database.model.enums.Status;
 import org.example.aideepseek.database.service.subscription.SetSubscription;
-import org.example.aideepseek.dto.ErrorDto;
+import org.example.aideepseek.dto.ErrorDTO;
 import org.example.aideepseek.dto.SignupDTO;
 import org.example.aideepseek.dto.UserDTO;
 import org.example.aideepseek.security.entities.User;
@@ -32,7 +32,7 @@ public class SignupController {
     @Value("${free.attempt.user}")
     private int freeAttempt;
 
-    private static final ErrorDto errorDto = new ErrorDto();
+    private static final ErrorDTO errorDto = new ErrorDTO();
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signupUser(@Valid @RequestBody SignupDTO signupDTO, BindingResult bindingResult) {

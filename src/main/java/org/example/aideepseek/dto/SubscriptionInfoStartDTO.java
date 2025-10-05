@@ -2,14 +2,13 @@ package org.example.aideepseek.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-public class SubscriptionInfoStartDto implements Serializable {
+public class SubscriptionInfoStartDTO implements Serializable {
     @NotNull(message = "ID подписки не может быть null")
     private UUID id;
 
@@ -25,10 +24,10 @@ public class SubscriptionInfoStartDto implements Serializable {
 
     private String username;
 
-    public SubscriptionInfoStartDto() {
+    public SubscriptionInfoStartDTO() {
     }
 
-    public SubscriptionInfoStartDto(UUID id, double value, Instant created_at, String type) {
+    public SubscriptionInfoStartDTO(UUID id, double value, Instant created_at, String type) {
         this.id = id;
         this.value = value;
         this.created_at = created_at;

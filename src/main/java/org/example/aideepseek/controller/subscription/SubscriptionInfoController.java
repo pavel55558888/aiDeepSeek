@@ -1,4 +1,4 @@
-package org.example.aideepseek.controller;
+package org.example.aideepseek.controller.subscription;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.aideepseek.database.service.subscription.GetSubscriptionByEmail;

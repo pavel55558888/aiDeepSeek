@@ -1,8 +1,8 @@
-package org.example.aideepseek.controller.service;
+package org.example.aideepseek.controller.deepseek.service.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import org.example.aideepseek.controller.ChatController;
+import org.example.aideepseek.controller.deepseek.service.DeepSeekControllerService;
 import org.example.aideepseek.database.model.HttpManualModel;
 import org.example.aideepseek.database.service.http_manual.DeleteHttpManual;
 import org.example.aideepseek.database.service.http_manual.GetHttpManual;
@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class ChatControllerService {
-    private static final Logger log = LoggerFactory.getLogger(ChatControllerService.class);
+public class DeepSeekControllerServiceImpl implements DeepSeekControllerService {
+    private static final Logger log = LoggerFactory.getLogger(DeepSeekControllerServiceImpl.class);
     @Value("${manual.expiry.day}")
     private long manualExpiryMs;
 
@@ -54,11 +54,13 @@ public class ChatControllerService {
 
     private final Gson gson = new Gson();
 
+    @Override
     public ResponseEntity<?> handleQuestionFormat(String userMessage) {
         String response = deepSeekService.getChatCompletion(userMessage);
         return ResponseEntity.ok(response);
     }
 
+    @Override
     public ResponseEntity<?> handleHtmlFormat(String rawHtml, String domain) {
         String cleanedHtml = parserHtmlService.removeCssAndJs(rawHtml);
         List<HttpManualModel> manuals = getHttpManual.getHttpManual(domain);
@@ -106,7 +108,7 @@ public class ChatControllerService {
             return ResponseEntity.ok(cachedAnswer);
         }
 
-        String prompt = "Дай только правильный ответ/ответы полностью словами и ничего большее " + parsedQuestions;
+        String prompt = "Дай только правильный ответ/ответы полностью словами и ничего больше " + parsedQuestions;
         String aiResponse = deepSeekService.getChatCompletion(prompt);
         log.debug("AI response for question: {} -> {}", fullQuestion, aiResponse);
 

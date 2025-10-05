@@ -1,11 +1,11 @@
-package org.example.aideepseek.controller;
+package org.example.aideepseek.controller.security;
 
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.example.aideepseek.dto.AuthenticationDTO;
 import org.example.aideepseek.dto.AuthenticationResponse;
-import org.example.aideepseek.dto.ErrorDto;
+import org.example.aideepseek.dto.ErrorDTO;
 import org.example.aideepseek.security.services.jwt.UserDetailsServiceImpl;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class AuthenticationController {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    private static final ErrorDto errorDto = new ErrorDto();
+    private static final ErrorDTO errorDto = new ErrorDTO();
 
     @PostMapping("/authenticate")
     public <T> T createAuthenticationToken(@Valid @RequestBody AuthenticationDTO authenticationDTO, BindingResult bindingResult, HttpServletResponse response) throws BadCredentialsException, DisabledException, UsernameNotFoundException, IOException {
