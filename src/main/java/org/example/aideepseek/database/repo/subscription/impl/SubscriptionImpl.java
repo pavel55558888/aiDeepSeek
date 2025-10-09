@@ -44,10 +44,9 @@ public class SubscriptionImpl implements Subscription {
                 .setParameter("email", email)
                 .getSingleResult();
 
-        subscriptionModel.setTimestamp(new Timestamp(System.currentTimeMillis()));
-
         if (subscription) {
             subscriptionModel.setStatus(Status.ACTIVE);
+            subscriptionModel.setTimestamp(new Timestamp(System.currentTimeMillis()));
         }else{
             subscriptionModel.setFreeAttempt(subscriptionModel.getFreeAttempt()+ attempt);
         }

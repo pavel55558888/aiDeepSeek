@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class IgniteConfigCacheTaskImpl {
+public class IgniteConfigCacheTask {
 
-    private static final Logger log = LoggerFactory.getLogger(IgniteConfigCacheTaskImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(IgniteConfigCacheTask.class);
 
     @Value("${ignite.cache.name.task}")
     private String cacheNameTask;

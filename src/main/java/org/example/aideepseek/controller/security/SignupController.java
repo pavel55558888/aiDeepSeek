@@ -1,16 +1,13 @@
 package org.example.aideepseek.controller.security;
 
 import jakarta.validation.Valid;
-import org.example.aideepseek.database.model.SubscriptionModel;
-import org.example.aideepseek.database.model.enums.Status;
-import org.example.aideepseek.database.service.subscription.SetSubscription;
 import org.example.aideepseek.dto.ErrorDTO;
 import org.example.aideepseek.dto.SignupDTO;
-import org.example.aideepseek.dto.UserDTO;
+import org.example.aideepseek.ignite.service.account_conformation.SetCacheAccountConformation;
+import org.example.aideepseek.mail.EmailService;
 import org.example.aideepseek.security.entities.User;
 import org.example.aideepseek.security.services.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -19,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.Timestamp;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -28,9 +25,11 @@ public class SignupController {
     @Autowired
     private AuthService authService;
     @Autowired
-    private SetSubscription setSubscription;
-    @Value("${free.attempt.user}")
-    private int freeAttempt;
+    private SetCacheAccountConformation setCacheAccountConformation;
+    @Autowired
+    private EmailService emailService;
+
+    private static final Random random = new Random();
 
     private static final ErrorDTO errorDto = new ErrorDTO();
 
@@ -45,18 +44,16 @@ public class SignupController {
             return new ResponseEntity<>("Такой пользователь уже существует", HttpStatus.BAD_REQUEST);
         }
 
-        UserDTO createdUser = authService.createUser(signupDTO);
-        if (createdUser == null){
-            return new ResponseEntity<>("Не получилось создать пользователя", HttpStatus.BAD_REQUEST);
-        }
-            setSubscription
-                    .setSubscription(
-                            new SubscriptionModel(
-                                    authService.getUserByEmail(signupDTO.getEmail()),
-                                    new Timestamp(System.currentTimeMillis()),
-                                    freeAttempt, Status.INACTIVE)
-                    );
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        int code = random.nextInt(10000,99999);
+
+        emailService.sendEmail(
+                signupDTO.getEmail(),
+                "Регистрация аккаунта MindAbyss AI",
+                "Ваш код подтверждения: " + code +
+                "\nНеобходимо подтвердить вашу почту в течение 10 минут");
+        setCacheAccountConformation.setCacheAccountConformation(code, signupDTO);
+
+        return ResponseEntity.ok().build();
     }
 
 }

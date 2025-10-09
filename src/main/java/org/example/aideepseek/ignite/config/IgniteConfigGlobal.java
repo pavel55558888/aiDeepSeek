@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class IgniteConfigGlobalImpl {
+public class IgniteConfigGlobal {
 
-    private static final Logger log = LoggerFactory.getLogger(IgniteConfigGlobalImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(IgniteConfigGlobal.class);
 
     @Value("${ignite.memory.request}")
     private long memoryRequest;

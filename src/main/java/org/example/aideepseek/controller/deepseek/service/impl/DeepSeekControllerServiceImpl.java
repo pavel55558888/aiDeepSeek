@@ -103,18 +103,43 @@ public class DeepSeekControllerServiceImpl implements DeepSeekControllerService 
         }
         String fullQuestion = questionText.toString();
 
-        String cachedAnswer = getTask.getTask(fullQuestion);
-        if (cachedAnswer != null) {
-            return ResponseEntity.ok(cachedAnswer);
+        String cachedAnswer = "";
+        if(!fullQuestion.isEmpty()) {
+            cachedAnswer = getTask.getTask(generateKeyIgniteCacheTask(parsedQuestions));
+            if (cachedAnswer != null && !cachedAnswer.isBlank()) {
+                return ResponseEntity.ok(cachedAnswer);
+            }
         }
 
-        String prompt = "Дай только правильный ответ/ответы полностью словами и ничего больше " + parsedQuestions;
+        String prompt = "Ответь на каждый объект QuestionWithAnswers, " +
+                "вопросы в блоке question, ответы в блоке answers, нужно выбрать верный. " +
+                "Приведу пример: [QuestionWithAnswers" +
+                "{question='В каком ряду нет ошибок в написании слов с безударной гласной в корне слова?', " +
+                "answers=[сократить, осаждать, отвергать, починить, кавёр, успеваемость, отделился, жимчужина, пригодился, приблежался, расколоть, заполнять]" +
+                "}]" +
+                "В данном случае всего 1 вопрос(т.к. 1 объект в массиве), " +
+                "В каком ряду нет ошибок в написании слов с безударной гласной в корне слова? - это вопрос, " +
+                "сократить, осаждать, отвергать, починить, кавёр, успеваемость, отделился, жимчужина, пригодился, приблежался, расколоть, заполнять - это все ответы. " +
+                "Ниже реальный кейс, ответ на него в формате \"вопрос: ответ\" и ничего больше\n"
+                + parsedQuestions;
         String aiResponse = deepSeekService.getChatCompletion(prompt);
         log.debug("AI response for question: {} -> {}", fullQuestion, aiResponse);
 
-        setCacheTask.setCacheTask(fullQuestion, aiResponse);
+        setCacheTask.setCacheTask(generateKeyIgniteCacheTask(parsedQuestions), aiResponse);
 
         return ResponseEntity.ok(aiResponse);
+    }
+
+    private String generateKeyIgniteCacheTask(List<QuestionWithAnswers> parsedQuestions){
+        int sumLengthAllAnswer = 0;
+        for (QuestionWithAnswers qa : parsedQuestions) {
+            for (String str : qa.getAnswers()) {
+                sumLengthAllAnswer += str.length();
+            }
+        }
+        String key = parsedQuestions.get(0).getQuestion() + sumLengthAllAnswer;
+
+        return key;
     }
 
     private void cleanupExpiredManuals(List<HttpManualModel> manuals) {

@@ -1,15 +1,11 @@
 package org.example.aideepseek.parser_html;
 
-import org.example.aideepseek.deepseek.service.DeepSeekService;
 import org.example.aideepseek.dto.ParsingInstruction;
 import org.example.aideepseek.dto.QuestionWithAnswers;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,10 +13,6 @@ import java.util.List;
 
 @Service
 public class ParserHtmlService {
-    private static final Logger log = LoggerFactory.getLogger(ParserHtmlService.class);
-
-    @Autowired
-    private DeepSeekService deepSeekService;
 
     public String removeCssAndJs(String htmlContent) {
         if (htmlContent == null || htmlContent.trim().isEmpty()) {

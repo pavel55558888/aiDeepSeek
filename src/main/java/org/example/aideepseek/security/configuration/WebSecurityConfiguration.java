@@ -3,6 +3,7 @@ package org.example.aideepseek.security.configuration;
 
 import org.example.aideepseek.security.filters.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,13 +23,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class WebSecurityConfiguration {
 
+    @Value("${api.list.is.open}")
+    private String[] listIsOpen;
+
     @Autowired
     private JwtRequestFilter requestFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/authenticate", "/api/v1/sign-up", "/success").permitAll().anyRequest().authenticated());
+        http.authorizeHttpRequests(auth -> auth.requestMatchers(listIsOpen).permitAll().anyRequest().authenticated());
         http.sessionManagement(sessionManagementCustomizer -> sessionManagementCustomizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

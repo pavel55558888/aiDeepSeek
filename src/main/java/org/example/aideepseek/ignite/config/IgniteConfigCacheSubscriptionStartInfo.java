@@ -18,9 +18,9 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-public class IgniteConfigCacheSubscriptionStartInfoImpl {
+public class IgniteConfigCacheSubscriptionStartInfo {
 
-    private static final Logger log = LoggerFactory.getLogger(IgniteConfigCacheSubscriptionStartInfoImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(IgniteConfigCacheSubscriptionStartInfo.class);
 
     @Value("${ignite.max.count.subscription}")
     private int maxCountSubscription;

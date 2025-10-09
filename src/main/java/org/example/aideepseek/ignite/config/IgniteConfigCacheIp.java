@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-public class IgniteConfigCacheIpImpl {
+public class IgniteConfigCacheIp {
 
-    private static final Logger log = LoggerFactory.getLogger(IgniteConfigCacheIpImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(IgniteConfigCacheIp.class);
 
     @Value("${ignite.max.count.ip}")
     private int maxCountIp;
