@@ -13,6 +13,7 @@ import org.example.aideepseek.dto.QuestionWithAnswers;
 import org.example.aideepseek.ignite.service.task.GetTask;
 import org.example.aideepseek.ignite.service.task.SetCacheTask;
 import org.example.aideepseek.parser_html.ParserHtmlService;
+import org.example.aideepseek.prompt.PromptDeepSeek;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,17 +112,7 @@ public class DeepSeekControllerServiceImpl implements DeepSeekControllerService 
             }
         }
 
-        String prompt = "Ответь на каждый объект QuestionWithAnswers, " +
-                "вопросы в блоке question, ответы в блоке answers, нужно выбрать верный. " +
-                "Приведу пример: [QuestionWithAnswers" +
-                "{question='В каком ряду нет ошибок в написании слов с безударной гласной в корне слова?', " +
-                "answers=[сократить, осаждать, отвергать, починить, кавёр, успеваемость, отделился, жимчужина, пригодился, приблежался, расколоть, заполнять]" +
-                "}]" +
-                "В данном случае всего 1 вопрос(т.к. 1 объект в массиве), " +
-                "В каком ряду нет ошибок в написании слов с безударной гласной в корне слова? - это вопрос, " +
-                "сократить, осаждать, отвергать, починить, кавёр, успеваемость, отделился, жимчужина, пригодился, приблежался, расколоть, заполнять - это все ответы. " +
-                "Ниже реальный кейс, ответ на него в формате \"вопрос: ответ\" и ничего больше\n"
-                + parsedQuestions;
+        String prompt = PromptDeepSeek.DEEPSEEK_PROMPT_CHOOSE_ANSWER.getPrompt() + parsedQuestions;
         String aiResponse = deepSeekService.getChatCompletion(prompt);
         log.debug("AI response for question: {} -> {}", fullQuestion, aiResponse);
 
@@ -152,17 +143,7 @@ public class DeepSeekControllerServiceImpl implements DeepSeekControllerService 
     }
 
     private ParsingInstruction generateParsingInstruction(String html) {
-        String prompt = """
-                Ты — парсер HTML. Твоя задача — проанализировать HTML и вернуть ТОЛЬКО валидный JSON-объект, без каких-либо пояснений, комментариев или Markdown.
-                Формат ответа:
-                    {
-                      "questionContainerSelector": "CSS-селектор для блока вопроса",
-                      "questionTextSelector": "CSS-селектор для текста вопроса",
-                      "answerSelector": "CSS-селектор для вариантов ответа"
-                    }
-
-                HTML:
-                """ + html;
+        String prompt = PromptDeepSeek.DEEPSEEK_PROMPT_MANUAL.getPrompt() + html;
 
         String rawResponse = deepSeekService.getChatCompletion(prompt);
 

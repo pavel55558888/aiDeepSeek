@@ -1,6 +1,7 @@
 package org.example.aideepseek.controller.deepseek;
 
 import org.example.aideepseek.controller.deepseek.service.DeepSeekControllerService;
+import org.example.aideepseek.prompt.PromptDeepSeek;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,7 @@ public class DeepSeekController {
                     return ResponseEntity.badRequest().body("User message is blank");
                 }
                 log.debug("question");
-                return deepSeekControllerService.handleQuestionFormat("Ответь на поставленный вопрос, максимально кратко " + userMessage);
+                return deepSeekControllerService.handleQuestionFormat(PromptDeepSeek.DEEPSEEK_PROMPT_QUESTION.getPrompt() + userMessage);
             }  else {
                 return ResponseEntity.badRequest().body("Unsupported format: " + format);
             }

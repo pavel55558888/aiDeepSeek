@@ -21,9 +21,10 @@ public class QuestionWithAnswers {
 
     @Override
     public String toString() {
+        String answersJoined = answers == null ? "" : String.join(";", answers);
         return "QuestionWithAnswers{" +
                 "question='" + question + '\'' +
-                ", answers=" + answers +
+                ", answers=" + answersJoined +
                 '}';
     }
 }
