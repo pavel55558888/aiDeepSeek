@@ -37,21 +37,12 @@ public class SubscriptionSearchAspectImpl implements SubscriptionSearchAspect {
 
     @Around("execution(* org.example.aideepseek.controller.deepseek.DeepSeekController.chat(..))")
     @Override
-    public Object searchSubscription(ProceedingJoinPoint joinPoint) throws Throwable {
-        log.debug("Aspect searchSubscription");
+    public Object searchSubscriptionChat(ProceedingJoinPoint joinPoint) throws Throwable {
+        log.debug("Aspect searchSubscription chat");
 
-        String username = null;
+        String username = getUsername();
 
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            username = jwtUtil.extractUsername(authHeader.substring(7));
-        }
-
-        SubscriptionModel subscriptionModel = CheckingSubscriptionPeriod(getSubscriptionByEmail.getSubscriptionByEmail(username));
+        SubscriptionModel subscriptionModel = checkingSubscriptionPeriod(getSubscriptionByEmail.getSubscriptionByEmail(username));
         if (subscriptionModel == null) {
             log.error("Account " + username + " notfound");
             return ResponseEntity.status(500).body(new ErrorDTO("Ошибка: аккакунт не найден"));
@@ -78,7 +69,33 @@ public class SubscriptionSearchAspectImpl implements SubscriptionSearchAspect {
         return joinPoint.proceed();
     }
 
-    private SubscriptionModel CheckingSubscriptionPeriod(SubscriptionModel subscriptionModel){
+    @Around("execution(* org.example.aideepseek.controller.subscription.SubscriptionInfoController.getSubscriptionUser(..))")
+    public Object searchSubscriptionInfo(ProceedingJoinPoint joinPoint) throws Throwable {
+        log.debug("Aspect searchSubscription info");
+
+        String username = getUsername();
+        checkingSubscriptionPeriod(getSubscriptionByEmail.getSubscriptionByEmail(username));
+
+
+        return joinPoint.proceed();
+    }
+
+    private String getUsername() {
+        String username = null;
+
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpServletRequest request = attributes.getRequest();
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            username = jwtUtil.extractUsername(authHeader.substring(7));
+        }
+
+        return username;
+    }
+
+    private SubscriptionModel checkingSubscriptionPeriod(SubscriptionModel subscriptionModel){
         log.debug("Checking subscription period");
         if (!subscriptionModel.getStatus().equals(Status.ACTIVE)){
             return subscriptionModel;
