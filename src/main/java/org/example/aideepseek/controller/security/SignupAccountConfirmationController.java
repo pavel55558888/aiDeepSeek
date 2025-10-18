@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @RestController()
 @RequestMapping("/api/v1")
-public class AccountConfirmationController {
+public class SignupAccountConfirmationController {
     @Autowired
     private SetSubscription setSubscription;
     @Value("${free.attempt.user}")
