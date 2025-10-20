@@ -1,6 +1,11 @@
 package org.example.aideepseek.controller.security;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.example.aideepseek.dto.AuthenticationDTO;
@@ -24,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Авторизация пользователя", description = "Получение токена, для дальнейшего взаимодействия с api")
 public class AuthenticationController {
 
     @Autowired
@@ -37,6 +43,13 @@ public class AuthenticationController {
 
     private static final ErrorDTO errorDto = new ErrorDTO();
 
+    @Operation(summary = "Авторизация", description = "Принимает данные пользователя и возвращает jwt токен, который живет n часов")
+    @ApiResponse(responseCode = "200", description = "Успешно авторизовались, в ответ получили токен")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Валидация не прошла",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))
+    )
     @PostMapping("/authenticate")
     public <T> T createAuthenticationToken(@Valid @RequestBody AuthenticationDTO authenticationDTO, BindingResult bindingResult, HttpServletResponse response) throws BadCredentialsException, DisabledException, UsernameNotFoundException, IOException {
         if (bindingResult.hasErrors()){

@@ -1,7 +1,14 @@
 package org.example.aideepseek.controller.subscription;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.example.aideepseek.annotation.ApiResponseUnAuth;
+import org.example.aideepseek.database.model.ConfigUCassaModel;
 import org.example.aideepseek.database.service.subscription.PurchaseOfSubscription;
 import org.example.aideepseek.dto.SubscriptionInfoStartDTO;
 import org.example.aideepseek.database.model.TransactionSubscriptionModel;
@@ -25,6 +32,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "Подписка пользователя", description = "Интеграция с юкассой")
 public class SubscriptionController {
     @Autowired
     private UserRepository userRepository;
@@ -45,6 +53,14 @@ public class SubscriptionController {
 
     private static final Logger log = LoggerFactory.getLogger(SubscriptionController.class);
 
+    @Operation(summary = "Начать покупку", description = "Сохраняет в кэш информацию о том, что пользователь начал покупку какой-либо подписки/попыток")
+    @ApiResponse(responseCode = "200", description = "Успешно начали покупку")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Валидация не прошла",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))
+    )
+    @ApiResponseUnAuth
     @PostMapping("/subscription/online/start")
     public ResponseEntity<?> startSubscription(@Valid @RequestBody SubscriptionInfoStartDTO subscriptionInfoStartDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()){
@@ -71,6 +87,17 @@ public class SubscriptionController {
         return ResponseEntity.ok().build();
     }
 
+
+    @Operation(summary = "Закончить покупку", description = "Юкасса отправляет уведомление после успешной оплаты, в данном случае обрабатываем только успешные")
+    @ApiResponse(responseCode = "200", description = "Подписка подключилась/попытки зачислены")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Не найден данный кэш, либо прошло более 10 минуты, либо такой пользователь вообще не начинал покупку"
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Неверный формат подписки или кол-во попыток"
+    )
     @PostMapping("/subscription/online/end")
     public ResponseEntity setSubscriptionUser(@RequestBody String requestBody) {
         SubscriptionInfoStopDTO subscriptionInfoStopDto = parserJsonStopSubscriptionService.parseNotification(requestBody);
@@ -128,7 +155,7 @@ public class SubscriptionController {
 
             return ResponseEntity.ok().build();
         }else {
-            return ResponseEntity.status(400).build();
+            return ResponseEntity.status(404).build();
         }
     }
 }
