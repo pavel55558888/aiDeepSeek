@@ -40,7 +40,7 @@ public class SubscriptionSearchAspectImpl implements SubscriptionSearchAspect {
     public Object searchSubscriptionChat(ProceedingJoinPoint joinPoint) throws Throwable {
         log.debug("Aspect searchSubscription chat");
 
-        String username = getUsername();
+        String username = jwtUtil.getUsernameFromJwt();
 
         SubscriptionModel subscriptionModel = checkingSubscriptionPeriod(getSubscriptionByEmail.getSubscriptionByEmail(username));
         if (subscriptionModel == null) {
@@ -73,27 +73,13 @@ public class SubscriptionSearchAspectImpl implements SubscriptionSearchAspect {
     public Object searchSubscriptionInfo(ProceedingJoinPoint joinPoint) throws Throwable {
         log.debug("Aspect searchSubscription info");
 
-        String username = getUsername();
+        String username = jwtUtil.getUsernameFromJwt();
         checkingSubscriptionPeriod(getSubscriptionByEmail.getSubscriptionByEmail(username));
 
 
         return joinPoint.proceed();
     }
 
-    private String getUsername() {
-        String username = null;
-
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            username = jwtUtil.extractUsername(authHeader.substring(7));
-        }
-
-        return username;
-    }
 
     private SubscriptionModel checkingSubscriptionPeriod(SubscriptionModel subscriptionModel){
         log.debug("Checking subscription period");

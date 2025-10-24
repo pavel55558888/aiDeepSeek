@@ -57,15 +57,11 @@ public class RequestIpAspectImpl implements RequestIpAspect {
     public Object logRequestIp(ProceedingJoinPoint joinPoint) throws Throwable {
         log.debug("Aspect RequestIpAspectImpl");
         if(checkIpAndBlocked) {
-            String username = null;
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
             HttpServletRequest request = attributes.getRequest();
-            String authHeader = request.getHeader("Authorization");
             String clientIp = getClientIp(request);
 
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                username = jwtUtil.extractUsername(authHeader.substring(7));
-            }
+            String username = jwtUtil.getUsernameFromJwt();
 
             log.debug("Request received from IP and username: {}, {}", clientIp, username);
             SubscriptionModel subscriptionModel = getSubscriptionByEmail.getSubscriptionByEmail(username);

@@ -5,9 +5,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.security.Key;
 import java.util.Date;
@@ -22,6 +27,26 @@ public class JwtUtil {
     private String SECRET;
     @Value("${jwt.time.h}")
     private int TIME;
+
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
+
+
+    public String getUsernameFromJwt() {
+        String username = null;
+
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpServletRequest request = attributes.getRequest();
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            username = extractUsername(authHeader.substring(7));
+        } else {
+            log.error("USERNAME IS NULL");
+        }
+
+        return username;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

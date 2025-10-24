@@ -30,16 +30,7 @@ public class SubscriptionInfoController {
     @GetMapping("/subscription/online")
     public ResponseEntity<?> getSubscriptionUser(){
 
-        String username = null;
-
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            username = jwtUtil.extractUsername(authHeader.substring(7));
-        }
-
+        String username = jwtUtil.getUsernameFromJwt();
 
         SubscriptionModel subscriptionModel = getSubscriptionByEmail.getSubscriptionByEmail(username);
 

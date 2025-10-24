@@ -31,15 +31,7 @@ public class SubscriptionTransactionController {
     @SubscriptionTransactionControllerAnnotation
     @GetMapping("/subscription/online/transaction")
     public ResponseEntity<?> getSubscriptionTransactionUser(){
-        String username = null;
-
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            username = jwtUtil.extractUsername(authHeader.substring(7));
-        }
+        String username = jwtUtil.getUsernameFromJwt();
 
         List<TransactionSubscriptionModel> transactionModels = getTransactionByEmail.getTransaction(username);
 

@@ -57,15 +57,7 @@ public class SubscriptionController {
             return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
         }
 
-        String username = null;
-
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            username = jwtUtil.extractUsername(authHeader.substring(7));
-        }
+        String username = jwtUtil.getUsernameFromJwt();
 
         subscriptionInfoStartDto.setUsername(username);
 
