@@ -1,19 +1,19 @@
 package org.example.aideepseek.controller.security;
 
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.example.aideepseek.annotation.swagger.controller.security.AuthenticationControllerAnnotation;
+import org.example.aideepseek.database.model.enums.Status;
 import org.example.aideepseek.dto.AuthenticationDTO;
 import org.example.aideepseek.dto.AuthenticationResponse;
 import org.example.aideepseek.dto.ErrorDTO;
 import org.example.aideepseek.security.services.jwt.UserDetailsServiceImpl;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -43,34 +43,25 @@ public class AuthenticationController {
 
     private static final ErrorDTO errorDto = new ErrorDTO();
 
-    @Operation(summary = "Авторизация", description = "Принимает данные пользователя и возвращает jwt токен, который живет n часов")
-    @ApiResponse(responseCode = "200", description = "Успешно авторизовались, в ответ получили токен")
-    @ApiResponse(
-            responseCode = "400",
-            description = "Валидация не прошла",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))
-    )
+    @AuthenticationControllerAnnotation
     @PostMapping("/authenticate")
-    public <T> T createAuthenticationToken(@Valid @RequestBody AuthenticationDTO authenticationDTO, BindingResult bindingResult, HttpServletResponse response) throws BadCredentialsException, DisabledException, UsernameNotFoundException, IOException {
+    public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody AuthenticationDTO authenticationDTO, BindingResult bindingResult, HttpServletResponse response) throws BadCredentialsException, DisabledException, UsernameNotFoundException, IOException {
         if (bindingResult.hasErrors()){
             errorDto.setListError(bindingResult.getAllErrors());
-            return (T) errorDto;
+            return ResponseEntity.badRequest().body(errorDto);
         }
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationDTO.getEmail(), authenticationDTO.getPassword()));
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Неверные данные");
-        } catch (DisabledException disabledException) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Пользователь не найден");
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Неверные данные");
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationDTO.getEmail());
 
         final String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
-        return (T) new AuthenticationResponse(jwt);
+        return ResponseEntity.ok().body(new AuthenticationResponse(jwt));
 
     }
 

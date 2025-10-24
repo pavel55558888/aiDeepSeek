@@ -1,4 +1,4 @@
-package org.example.aideepseek.dto;
+package org.example.aideepseek.parser_html.model;
 
 import java.util.List;
 

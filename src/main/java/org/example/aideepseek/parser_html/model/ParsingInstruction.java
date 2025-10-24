@@ -1,4 +1,4 @@
-package org.example.aideepseek.dto;
+package org.example.aideepseek.parser_html.model;
 
 public class ParsingInstruction {
     // CSS-селектор для контейнера каждого вопроса (например, ".question-block")

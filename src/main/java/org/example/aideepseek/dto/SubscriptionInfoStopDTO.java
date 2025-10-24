@@ -1,5 +1,6 @@
 package org.example.aideepseek.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -8,13 +9,16 @@ import java.util.UUID;
 
 public class SubscriptionInfoStopDTO {
 
+    @Schema(description = "Уникальный идентификатор платежа", example = "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8")
     @NotNull(message = "ID платежа не может быть null")
     private UUID id;
 
+    @Schema(description = "Сумма платежа в валюте", example = "49.99")
     @NotNull(message = "Сумма платежа не может быть null")
     @Positive(message = "Сумма платежа должна быть положительной")
     private double value;
 
+    @Schema(description = "Время совершения платежа в формате ISO 8601", example = "2025-10-23T14:30:00Z")
     @NotNull(message = "Временная метка не может быть null")
     private Instant created_at;
 

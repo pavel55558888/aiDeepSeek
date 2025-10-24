@@ -1,14 +1,12 @@
 package org.example.aideepseek.controller.transaction;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import org.example.aideepseek.database.model.ConfigUCassaModel;
+import org.example.aideepseek.annotation.swagger.controller.transaction.SubscriptionTransactionControllerAnnotation;
+import org.example.aideepseek.database.model.TransactionSubscriptionModel;
 import org.example.aideepseek.database.service.transacion.GetTransactionByEmail;
+import org.example.aideepseek.dto.TransactionSubscriptionDTO;
+import org.example.aideepseek.dto.UserDTO;
 import org.example.aideepseek.security.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -28,8 +28,7 @@ public class SubscriptionTransactionController {
     @Autowired
     private GetTransactionByEmail getTransactionByEmail;
 
-    @Operation(summary = "Получить список всех транзакции", description = "Все произведенные оплаты пользователя вернутся, или пустой список")
-    @ApiResponses()
+    @SubscriptionTransactionControllerAnnotation
     @GetMapping("/subscription/online/transaction")
     public ResponseEntity<?> getSubscriptionTransactionUser(){
         String username = null;
@@ -42,6 +41,18 @@ public class SubscriptionTransactionController {
             username = jwtUtil.extractUsername(authHeader.substring(7));
         }
 
-        return ResponseEntity.ok().body(getTransactionByEmail.getTransaction(username));
+        List<TransactionSubscriptionModel> transactionModels = getTransactionByEmail.getTransaction(username);
+
+        List<TransactionSubscriptionDTO> transactionModelsDto = transactionModels.stream()
+                .map(model -> {
+                    UserDTO userDto = new UserDTO(
+                            model.getUser().getId(),
+                            model.getUser().getEmail()
+                    );
+                    return new TransactionSubscriptionDTO(userDto, model.getPrice(), model.getTimestamp());
+                })
+                .toList();
+
+        return ResponseEntity.ok().body(transactionModelsDto);
     }
 }

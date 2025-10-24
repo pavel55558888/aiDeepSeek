@@ -1,11 +1,14 @@
 package org.example.aideepseek.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.ObjectError;
 
 import java.util.List;
 
 public class ErrorDTO {
+    @Schema(description = "Обычная строка с ошибкой", example = "Ошибка: бесплатные попытки закончились. Оформите подписку")
     private String error;
+    @Schema(description = "Ошибка по валидации")
     private List<ObjectError> listError;
 
     public ErrorDTO() {

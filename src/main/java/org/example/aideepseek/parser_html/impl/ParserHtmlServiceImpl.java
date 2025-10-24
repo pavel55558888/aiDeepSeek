@@ -1,7 +1,7 @@
 package org.example.aideepseek.parser_html.impl;
 
-import org.example.aideepseek.dto.ParsingInstruction;
-import org.example.aideepseek.dto.QuestionWithAnswers;
+import org.example.aideepseek.parser_html.model.ParsingInstruction;
+import org.example.aideepseek.parser_html.model.QuestionWithAnswers;
 import org.example.aideepseek.parser_html.ParserHtmlService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
