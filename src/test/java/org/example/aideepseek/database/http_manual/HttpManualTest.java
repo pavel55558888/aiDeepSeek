@@ -26,20 +26,23 @@ public class HttpManualTest {
     private HttpManualImpl httpManual;
 
     @Test
-    public void setHttpManualTestMethod(){
+    public void setHttpManual_WhenHttpModel_ReturnNull(){
+        //Given
         HttpManualModel httpManualModel =
                 new HttpManualModel(
                         "http://localhost:8080/test",
                         new Timestamp(System.currentTimeMillis()),
                         "manual{}"
                 );
+        //When
         httpManual.setHttpManual(httpManualModel);
-
+        //Then
         verify(entityManager).persist(httpManualModel);
     }
 
     @Test
-    public void getHttpManualTestMethod() {
+    public void getHttpManual_WhenUrl_ReturnHttpManual() {
+        //Given
         HttpManualModel model1 =
                 new HttpManualModel(
                         "http://localhost:8080/test",
@@ -51,7 +54,7 @@ public class HttpManualTest {
 
         @SuppressWarnings("unchecked")
         TypedQuery<HttpManualModel> mockQuery = Mockito.mock(TypedQuery.class);
-
+        //When
         when(entityManager.createQuery(
                 "from HttpManualModel where url = :param1",
                 HttpManualModel.class))
@@ -60,7 +63,7 @@ public class HttpManualTest {
         when(mockQuery.setParameter("param1", "http://localhost:8080/test")).thenReturn(mockQuery);
         when(mockQuery.getResultList()).thenReturn(expectedList);
 
-
+        //Then
         List<HttpManualModel> result = httpManual.getHttpManual("http://localhost:8080/test");
 
         assertThat(result).hasSize(2);
@@ -72,7 +75,8 @@ public class HttpManualTest {
     }
 
     @Test
-    public void deleteHttpManualMethodTest(){
+    public void deleteHttpManualWhenId_ReturnNull(){
+        //Given
         long id = 123L;
         HttpManualModel httpManualModel = new HttpManualModel(
                 "http://localhost:8080/test",
@@ -80,9 +84,9 @@ public class HttpManualTest {
                 "manual{}"
         );
         httpManualModel.setId(id);
-
+        //When
         when(entityManager.find(HttpManualModel.class, id)).thenReturn(httpManualModel);
-
+        //Then
         httpManual.deleteHttpManual(id);
 
         verify(entityManager).find(HttpManualModel.class, id);
