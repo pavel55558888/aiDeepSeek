@@ -69,16 +69,13 @@ public class SignupController {
 
         int code = random.nextInt(10000,99999);
 
-        try {
-            emailService.sendEmail(
-                    signupDTO.getEmail(),
-                    PatternEmailMessage.SUBJECT.getTemplate(),
-                    PatternEmailMessage.BODY.format(code)
-            );
-        }catch (Exception e){
-            log.error("SMTP ERROR \n" + e.getMessage());
-            return ResponseEntity.status(504).build();
-        }
+        boolean isSend = emailService.sendEmail(
+                signupDTO.getEmail(),
+                PatternEmailMessage.SUBJECT.getTemplate(),
+                PatternEmailMessage.BODY.format(code)
+        );
+
+        if(!isSend) return ResponseEntity.status(504).build();
 
         setCacheAccountConformation.setCacheAccountConformation(code, signupDTO);
 

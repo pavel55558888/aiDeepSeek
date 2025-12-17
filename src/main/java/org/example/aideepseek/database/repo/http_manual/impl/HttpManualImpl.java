@@ -20,7 +20,9 @@ public class HttpManualImpl implements HttpManual {
 
     @Override
     public List<HttpManualModel> getHttpManual(String url) {
-        return entityManager.createQuery("from HttpManualModel where url = :param1").setParameter("param1", url).getResultList();
+        return entityManager.createQuery("from HttpManualModel where url = :param1", HttpManualModel.class)
+                .setParameter("param1", url)
+                .getResultList();
     }
 
     @Override
